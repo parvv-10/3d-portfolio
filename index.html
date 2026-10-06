@@ -1,2488 +1,1863 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>NEURAL ODYSSEY | PARV</title>
-
-    <!-- =====================================================
-         A-FRAME
-    ====================================================== -->
-
-    <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
-
-
-    <!-- =====================================================
-         CSS
-    ====================================================== -->
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-
-            margin: 0;
-            padding: 0;
-
-            width: 100%;
-            height: 100%;
-
-            overflow: hidden;
-
-            background: #02030a;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            color: white;
-        }
-
-
-        /* =====================================================
-           LOADING SCREEN
-        ====================================================== */
-
-        #loading {
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 9999;
-
-            background:
-                radial-gradient(
-                    circle at center,
-                    #081629 0%,
-                    #02030a 65%,
-                    #000000 100%
-                );
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            flex-direction: column;
-
-            transition:
-                opacity 1s ease;
-        }
-
-
-        #loading h1 {
-
-            margin: 0;
-
-            font-size: clamp(
-                32px,
-                7vw,
-                80px
-            );
-
-            letter-spacing: 12px;
-
-            color: #00ffff;
-
-            text-shadow:
-
-                0 0 10px #00ffff,
-
-                0 0 30px #00ffff,
-
-                0 0 80px #0077ff;
-
-            text-align: center;
-        }
-
-
-        #loading p {
-
-            margin-top: 20px;
-
-            color: #8194a8;
-
-            letter-spacing: 5px;
-
-            font-size: 11px;
-
-            text-align: center;
-        }
-
-
-        #enterButton {
-
-            margin-top: 40px;
-
-            padding:
-                15px 35px;
-
-            background:
-                rgba(0,255,255,0.05);
-
-            border:
-
-                1px solid
-                #00ffff;
-
-            color: #00ffff;
-
-            letter-spacing: 4px;
-
-            font-size: 12px;
-
-            cursor: pointer;
-
-            transition:
-                0.3s ease;
-        }
-
-
-        #enterButton:hover {
-
-            background:
-                rgba(0,255,255,0.2);
-
-            box-shadow:
-
-                0 0 30px
-                rgba(0,255,255,0.5);
-
-            transform:
-                scale(1.05);
-        }
-
-
-
-        /* =====================================================
-           TOP HUD
-        ====================================================== */
-
-        #topHUD {
-
-            position: fixed;
-
-            top: 20px;
-
-            left: 25px;
-
-            z-index: 100;
-
-            pointer-events: none;
-        }
-
-
-        #logo {
-
-            font-size: 17px;
-
-            font-weight: bold;
-
-            letter-spacing: 5px;
-
-            color: #00ffff;
-
-            text-shadow:
-                0 0 15px #00ffff;
-        }
-
-
-        #subtitle {
-
-            margin-top: 6px;
-
-            font-size: 9px;
-
-            letter-spacing: 3px;
-
-            color: #728397;
-        }
-
-
-
-        /* =====================================================
-           SYSTEM STATUS
-        ====================================================== */
-
-        #systemStatus {
-
-            position: fixed;
-
-            top: 20px;
-
-            right: 25px;
-
-            z-index: 100;
-
-            font-size: 10px;
-
-            letter-spacing: 3px;
-
-            color: #00ff9d;
-        }
-
-
-        #systemStatus span {
-
-            display: inline-block;
-
-            width: 7px;
-
-            height: 7px;
-
-            margin-right: 8px;
-
-            border-radius: 50%;
-
-            background: #00ff9d;
-
-            box-shadow:
-                0 0 15px #00ff9d;
-
-            animation:
-                pulse 1.5s infinite;
-        }
-
-
-        @keyframes pulse {
-
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.25;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-
-
-        /* =====================================================
-           CROSSHAIR
-        ====================================================== */
-
-        #crosshair {
-
-            position: fixed;
-
-            left: 50%;
-            top: 50%;
-
-            transform:
-                translate(-50%, -50%);
-
-            width: 26px;
-            height: 26px;
-
-            z-index: 80;
-
-            pointer-events: none;
-        }
-
-
-        #crosshair::before {
-
-            content: "";
-
-            position: absolute;
-
-            width: 26px;
-
-            height: 1px;
-
-            top: 13px;
-
-            left: 0;
-
-            background: #00ffff;
-
-            box-shadow:
-                0 0 8px #00ffff;
-        }
-
-
-        #crosshair::after {
-
-            content: "";
-
-            position: absolute;
-
-            width: 1px;
-
-            height: 26px;
-
-            left: 13px;
-
-            top: 0;
-
-            background: #00ffff;
-
-            box-shadow:
-                0 0 8px #00ffff;
-        }
-
-
-
-        /* =====================================================
-           CHAPTER DISPLAY
-        ====================================================== */
-
-        #chapter {
-
-            position: fixed;
-
-            left: 50%;
-
-            bottom: 30px;
-
-            transform:
-                translateX(-50%);
-
-            z-index: 100;
-
-            text-align: center;
-
-            pointer-events: none;
-
-            width: 90%;
-        }
-
-
-        #chapterTitle {
-
-            font-size: 11px;
-
-            letter-spacing: 6px;
-
-            color: #00ffff;
-        }
-
-
-        #chapterDescription {
-
-            margin-top: 8px;
-
-            font-size: 10px;
-
-            letter-spacing: 2px;
-
-            color: #66788d;
-        }
-
-
-
-        /* =====================================================
-           CONTROLS
-        ====================================================== */
-
-        #controls {
-
-            position: fixed;
-
-            bottom: 25px;
-
-            left: 25px;
-
-            z-index: 100;
-
-            color: #526273;
-
-            font-size: 9px;
-
-            line-height: 2;
-
-            letter-spacing: 1px;
-
-            pointer-events: none;
-        }
-
-
-        #controls b {
-
-            color: #00ffff;
-        }
-
-
-
-        /* =====================================================
-           PROJECT PANEL
-        ====================================================== */
-
-        #projectPanel {
-
-            position: fixed;
-
-            top: 50%;
-
-            right: 35px;
-
-            width: 360px;
-
-            max-width: calc(100% - 40px);
-
-            transform:
-                translateY(-50%)
-                translateX(130%);
-
-            z-index: 500;
-
-            padding: 28px;
-
-            background:
-
-                linear-gradient(
-                    135deg,
-                    rgba(5,20,35,0.94),
-                    rgba(4,5,15,0.94)
-                );
-
-            border:
-
-                1px solid
-                rgba(0,255,255,0.5);
-
-            box-shadow:
-
-                0 0 40px
-                rgba(0,255,255,0.12),
-
-                inset 0 0 30px
-                rgba(0,255,255,0.03);
-
-            backdrop-filter:
-                blur(20px);
-
-            transition:
-                transform 0.6s
-                cubic-bezier(
-                    .16,
-                    1,
-                    .3,
-                    1
-                );
-        }
-
-
-        #projectPanel.active {
-
-            transform:
-                translateY(-50%)
-                translateX(0);
-        }
-
-
-        #closePanel {
-
-            position: absolute;
-
-            right: 15px;
-
-            top: 15px;
-
-            width: 30px;
-
-            height: 30px;
-
-            background: transparent;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.2);
-
-            color: white;
-
-            cursor: pointer;
-
-            font-size: 18px;
-        }
-
-
-        #closePanel:hover {
-
-            color: #00ffff;
-
-            border-color: #00ffff;
-        }
-
-
-        #panelCategory {
-
-            font-size: 9px;
-
-            letter-spacing: 4px;
-
-            color: #ff00ff;
-        }
-
-
-        #panelTitle {
-
-            margin:
-                10px 0 15px;
-
-            font-size: 25px;
-
-            color: white;
-        }
-
-
-        #panelDescription {
-
-            color: #8b9bad;
-
-            font-size: 12px;
-
-            line-height: 1.8;
-        }
-
-
-        #techContainer {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
-            gap: 7px;
-
-            margin-top: 20px;
-        }
-
-
-        .techTag {
-
-            padding:
-                6px 10px;
-
-            border:
-                1px solid
-                rgba(0,255,255,0.25);
-
-            color: #00ffff;
-
-            font-size: 9px;
-
-            letter-spacing: 1px;
-
-            background:
-                rgba(0,255,255,0.04);
-        }
-
-
-        .projectButtons {
-
-            display: flex;
-
-            gap: 10px;
-
-            margin-top: 25px;
-        }
-
-
-        .projectButtons a {
-
-            flex: 1;
-
-            padding: 12px;
-
-            text-align: center;
-
-            text-decoration: none;
-
-            color: #00ffff;
-
-            font-size: 9px;
-
-            letter-spacing: 2px;
-
-            border:
-                1px solid
-                rgba(0,255,255,0.3);
-
-            background:
-                rgba(0,255,255,0.04);
-
-            transition:
-                0.25s;
-        }
-
-
-        .projectButtons a:hover {
-
-            background:
-                rgba(0,255,255,0.15);
-
-            box-shadow:
-                0 0 20px
-                rgba(0,255,255,0.15);
-        }
-
-
-
-        /* =====================================================
-           JOURNEY MODE
-        ====================================================== */
-
-        #journeyButton {
-
-            position: fixed;
-
-            top: 60px;
-
-            right: 25px;
-
-            z-index: 100;
-
-            padding:
-                9px 15px;
-
-            background:
-                rgba(0,0,0,0.35);
-
-            border:
-                1px solid
-                rgba(255,255,255,0.2);
-
-            color: #8394a8;
-
-            font-size: 9px;
-
-            letter-spacing: 2px;
-
-            cursor: pointer;
-        }
-
-
-        #journeyButton:hover {
-
-            color: #00ffff;
-
-            border-color: #00ffff;
-        }
-
-
-
-        /* =====================================================
-           MOBILE
-        ====================================================== */
-
-        @media(max-width: 600px) {
-
-            #topHUD {
-
-                left: 15px;
-
-                top: 15px;
-            }
-
-
-            #systemStatus {
-
-                right: 15px;
-
-                top: 15px;
-            }
-
-
-            #controls {
-
-                display: none;
-            }
-
-
-            #projectPanel {
-
-                right: 20px;
-
-                width:
-                    calc(100% - 40px);
-            }
-
-
-            #chapter {
-
-                bottom: 20px;
-            }
-
-
-            #chapterTitle {
-
-                font-size: 9px;
-
-                letter-spacing: 4px;
-            }
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>INSIDE THE COMPUTER — 3D Experience</title>
+
+<script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#020409;
+    overflow:hidden;
+    color:white;
+}
+
+/* =========================
+   LOADING SCREEN
+========================= */
+
+#loading{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at center,#071927 0%,#020409 55%,#000 100%);
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition:opacity 1s ease;
+}
+
+.loading-title{
+    font-size:clamp(35px,7vw,85px);
+    letter-spacing:12px;
+    font-weight:900;
+    text-align:center;
+    text-shadow:
+        0 0 10px #00eaff,
+        0 0 30px #00eaff,
+        0 0 80px #006eff;
+}
+
+.loading-sub{
+    margin-top:15px;
+    color:#8aefff;
+    letter-spacing:5px;
+    font-size:13px;
+}
+
+.loader{
+    width:300px;
+    height:3px;
+    background:#10232b;
+    margin-top:40px;
+    overflow:hidden;
+}
+
+.loader-bar{
+    height:100%;
+    width:0%;
+    background:#00eaff;
+    box-shadow:0 0 20px #00eaff;
+    animation:load 3s forwards;
+}
+
+@keyframes load{
+    to{width:100%}
+}
+
+#enterBtn{
+    margin-top:35px;
+    padding:14px 35px;
+    background:transparent;
+    border:1px solid #00eaff;
+    color:#00eaff;
+    letter-spacing:4px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+#enterBtn:hover{
+    background:#00eaff;
+    color:#001016;
+    box-shadow:0 0 30px #00eaff;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:100;
+}
+
+.top-left{
+    position:absolute;
+    top:25px;
+    left:30px;
+}
+
+.logo{
+    font-size:19px;
+    font-weight:bold;
+    letter-spacing:5px;
+    color:#00eaff;
+    text-shadow:0 0 12px #00eaff;
+}
+
+.system{
+    font-size:10px;
+    color:#73ffbd;
+    letter-spacing:3px;
+    margin-top:7px;
+}
+
+.top-right{
+    position:absolute;
+    top:25px;
+    right:30px;
+    text-align:right;
+}
+
+#location{
+    color:#00eaff;
+    font-size:11px;
+    letter-spacing:3px;
+}
+
+#status{
+    margin-top:8px;
+    color:#73ffbd;
+    font-size:10px;
+}
+
+.crosshair{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:18px;
+    height:18px;
+}
+
+.crosshair:before,
+.crosshair:after{
+    content:"";
+    position:absolute;
+    background:#00eaff;
+    box-shadow:0 0 8px #00eaff;
+}
+
+.crosshair:before{
+    width:18px;
+    height:1px;
+    top:9px;
+}
+
+.crosshair:after{
+    width:1px;
+    height:18px;
+    left:9px;
+}
+
+.bottom{
+    position:absolute;
+    bottom:25px;
+    left:30px;
+    font-size:10px;
+    color:#7c8b95;
+    letter-spacing:2px;
+}
+
+#tourBtn{
+    position:absolute;
+    bottom:25px;
+    right:30px;
+    pointer-events:auto;
+    padding:12px 20px;
+    background:rgba(0,10,18,.8);
+    border:1px solid #00eaff;
+    color:#00eaff;
+    cursor:pointer;
+    letter-spacing:2px;
+}
+
+/* =========================
+   COMPONENT PANEL
+========================= */
+
+#panel{
+    position:fixed;
+    top:50%;
+    right:35px;
+    transform:translateY(-50%) translateX(120%);
+    width:330px;
+    max-width:calc(100vw - 40px);
+    background:rgba(3,10,17,.94);
+    border:1px solid #00eaff;
+    box-shadow:
+        0 0 30px rgba(0,234,255,.25),
+        inset 0 0 30px rgba(0,234,255,.04);
+    padding:25px;
+    z-index:300;
+    transition:.5s ease;
+    pointer-events:auto;
+}
+
+#panel.active{
+    transform:translateY(-50%) translateX(0);
+}
+
+.panel-label{
+    font-size:9px;
+    color:#73ffbd;
+    letter-spacing:4px;
+}
+
+#panel h2{
+    margin-top:10px;
+    color:#00eaff;
+    font-size:30px;
+    letter-spacing:3px;
+}
+
+#panel p{
+    margin-top:15px;
+    color:#b5c4ca;
+    line-height:1.6;
+    font-size:13px;
+}
+
+.tech{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-top:18px;
+}
+
+.tech span{
+    padding:5px 8px;
+    border:1px solid #1d6874;
+    color:#6eeeff;
+    font-size:9px;
+}
+
+.close{
+    position:absolute;
+    right:15px;
+    top:12px;
+    color:#fff;
+    cursor:pointer;
+    font-size:20px;
+}
+
+.panel-line{
+    height:1px;
+    background:#12353e;
+    margin:20px 0;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:600px){
+
+    .top-left{
+        left:15px;
+        top:15px;
+    }
+
+    .top-right{
+        right:15px;
+        top:15px;
+    }
+
+    .bottom{
+        left:15px;
+        bottom:15px;
+    }
+
+    #tourBtn{
+        right:15px;
+        bottom:15px;
+        padding:9px 12px;
+    }
+
+    #panel{
+        right:20px;
+        left:20px;
+        width:auto;
+    }
+
+}
+
+</style>
 </head>
-
-
 
 <body>
 
-
-<!-- =========================================================
-     LOADING / INTRO
-========================================================= -->
+<!-- =========================
+     LOADING
+========================= -->
 
 <div id="loading">
 
-    <h1>NEURAL ODYSSEY</h1>
+    <div class="loading-title">
+        INSIDE
+    </div>
 
-    <p>
-        AN INTERACTIVE JOURNEY THROUGH MY DIGITAL MIND
-    </p>
+    <div class="loading-title">
+        THE COMPUTER
+    </div>
 
-    <button id="enterButton">
-        ENTER THE EXPERIENCE
+    <div class="loading-sub">
+        A 3D JOURNEY THROUGH DIGITAL ARCHITECTURE
+    </div>
+
+    <div class="loader">
+        <div class="loader-bar"></div>
+    </div>
+
+    <button id="enterBtn">
+        ENTER SYSTEM
     </button>
 
 </div>
 
 
-
-<!-- =========================================================
+<!-- =========================
      HUD
-========================================================= -->
+========================= -->
 
-<div id="topHUD">
+<div id="hud">
 
-    <div id="logo">
-        PARV // ODYSSEY
+    <div class="top-left">
+
+        <div class="logo">
+            COMPUTER // CORE
+        </div>
+
+        <div class="system">
+            ● SYSTEM ONLINE
+        </div>
+
     </div>
 
-    <div id="subtitle">
-        DIGITAL ENGINEER • EXPLORER • BUILDER
+
+    <div class="top-right">
+
+        <div id="location">
+            SECTOR: ENTRY
+        </div>
+
+        <div id="status">
+            CPU LOAD 27% · MEMORY 64%
+        </div>
+
     </div>
 
-</div>
+
+    <div class="crosshair"></div>
 
 
-
-<div id="systemStatus">
-
-    <span></span>
-
-    NEURAL SYSTEM ONLINE
-
-</div>
-
-
-
-<div id="crosshair"></div>
-
-
-
-<!-- =========================================================
-     JOURNEY BUTTON
-========================================================= -->
-
-<button id="journeyButton">
-
-    ▶ JOURNEY MODE
-
-</button>
-
-
-
-<!-- =========================================================
-     CHAPTER
-========================================================= -->
-
-<div id="chapter">
-
-    <div id="chapterTitle">
-        CHAPTER 01 — ORIGIN
+    <div class="bottom">
+        WASD / ARROWS — MOVE &nbsp; • &nbsp;
+        MOUSE — LOOK &nbsp; • &nbsp;
+        CLICK — INTERACT
     </div>
 
-    <div id="chapterDescription">
-        EVERY SYSTEM STARTS WITH A SINGLE IDEA.
-    </div>
 
-</div>
-
-
-
-<!-- =========================================================
-     CONTROLS
-========================================================= -->
-
-<div id="controls">
-
-    <b>W A S D</b> — MOVE<br>
-
-    <b>MOUSE</b> — LOOK<br>
-
-    <b>CLICK</b> — INTERACT<br>
-
-    <b>ESC</b> — CLOSE PANEL
-
-</div>
-
-
-
-<!-- =========================================================
-     PROJECT PANEL
-========================================================= -->
-
-<div id="projectPanel">
-
-    <button id="closePanel">
-        ×
+    <button id="tourBtn">
+        START SYSTEM TOUR
     </button>
 
+</div>
 
-    <div id="panelCategory">
-        PROJECT
+
+<!-- =========================
+     INFORMATION PANEL
+========================= -->
+
+<div id="panel">
+
+    <div class="close" id="closePanel">
+        ×
     </div>
 
+    <div class="panel-label">
+        COMPONENT DETECTED
+    </div>
 
     <h2 id="panelTitle">
-        Project
+        CPU
     </h2>
 
+    <div class="panel-line"></div>
 
     <p id="panelDescription">
-        Description
+        Central Processing Unit.
     </p>
 
-
-    <div id="techContainer"></div>
-
-
-    <div class="projectButtons">
-
-        <a
-            id="githubLink"
-            href="#"
-            target="_blank">
-
-            GITHUB
-
-        </a>
-
-
-        <a
-            id="demoLink"
-            href="#"
-            target="_blank">
-
-            LIVE DEMO
-
-        </a>
-
-    </div>
+    <div class="tech" id="panelTech"></div>
 
 </div>
 
 
-
-<!-- =========================================================
-     A-FRAME
-========================================================= -->
+<!-- =========================
+     3D WORLD
+========================= -->
 
 <a-scene
-    id="scene"
-
+    background="color:#01040a"
     renderer="
-        antialias: true;
-        colorManagement: true;
-        physicallyCorrectLights: true;
+        antialias:true;
+        colorManagement:true;
+        physicallyCorrectLights:true;
     "
-
     fog="
-        type: exponential;
-        color: #02030a;
-        density: 0.015;
-    ">
+        type:exponential;
+        color:#020812;
+        density:0.012;
+    "
+>
 
 
-    <!-- =====================================================
-         CAMERA
-    ====================================================== -->
+<!-- =========================
+     ASSETS
+========================= -->
+
+<a-assets>
+
+    <a-mixin
+        id="glowMaterial"
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:2;
+            metalness:.7;
+            roughness:.2;
+        ">
+    </a-mixin>
+
+</a-assets>
+
+
+<!-- =========================
+     LIGHTING
+========================= -->
+
+<a-entity light="
+    type:ambient;
+    color:#17404d;
+    intensity:.8">
+</a-entity>
+
+<a-entity
+    position="0 8 0"
+    light="
+        type:point;
+        color:#00eaff;
+        intensity:8;
+        distance:35">
+</a-entity>
+
+<a-entity
+    position="0 3 -15"
+    light="
+        type:point;
+        color:#0066ff;
+        intensity:5;
+        distance:30">
+</a-entity>
+
+<a-entity
+    position="12 3 0"
+    light="
+        type:point;
+        color:#ff00d4;
+        intensity:4;
+        distance:25">
+</a-entity>
+
+
+<!-- =========================
+     CAMERA
+========================= -->
+
+<a-entity
+    id="cameraRig"
+    position="0 2 16">
 
     <a-camera
-
         id="camera"
-
-        position="0 2 12"
-
-        look-controls
-
         wasd-controls="
-            acceleration: 25
-        ">
+            acceleration:35;
+            fly:true;
+        "
+        look-controls="
+            pointerLockEnabled:false;
+        "
+        position="0 0 0">
 
         <a-cursor
-
-            color="#00ffff"
-
-            raycaster="
-                objects: .interactive
-            "
-
-            fuse="false">
-
+            color="#00eaff"
+            fuse="false"
+            raycaster="objects:.interactive">
         </a-cursor>
 
     </a-camera>
 
+</a-entity>
 
 
-    <!-- =====================================================
-         SKY
-    ====================================================== -->
+<!-- =========================
+     FLOOR
+========================= -->
 
-    <a-sky
-        color="#02030a">
-    </a-sky>
+<a-plane
+    rotation="-90 0 0"
+    width="80"
+    height="80"
+    material="
+        color:#02080e;
+        roughness:.9;
+        metalness:.3;
+    ">
+</a-plane>
 
 
+<!-- FLOOR GRID -->
 
-    <!-- =====================================================
-         LIGHTING
-    ====================================================== -->
+<a-entity id="grid"></a-entity>
 
-    <a-light
-        type="ambient"
-        intensity="0.18"
+
+<!-- =========================
+     WALLS
+========================= -->
+
+<a-box
+    position="-22 8 0"
+    width="1"
+    height="16"
+    depth="45"
+    material="
+        color:#020b12;
+        metalness:.8;
+        roughness:.3;
+    ">
+</a-box>
+
+<a-box
+    position="22 8 0"
+    width="1"
+    height="16"
+    depth="45"
+    material="
+        color:#020b12;
+        metalness:.8;
+        roughness:.3;
+    ">
+</a-box>
+
+<a-box
+    position="0 8 -22"
+    width="45"
+    height="16"
+    depth="1"
+    material="
+        color:#020b12;
+        metalness:.8;
+        roughness:.3;
+    ">
+</a-box>
+
+
+<!-- =========================
+     ENTRANCE
+========================= -->
+
+<a-text
+    value="WELCOME TO THE COMPUTER"
+    align="center"
+    position="0 5 12"
+    rotation="0 180 0"
+    width="10"
+    color="#00eaff"
+    side="double">
+</a-text>
+
+<a-ring
+    position="0 0.03 12"
+    rotation="-90 0 0"
+    radius-inner="3"
+    radius-outer="3.1"
+    material="
+        color:#00eaff;
+        emissive:#00eaff;
+        emissiveIntensity:4;
+    "
+    animation="
+        property:rotation;
+        to:-90 360 0;
+        loop:true;
+        dur:10000;
+        easing:linear;
+    ">
+</a-ring>
+
+
+<!-- =========================
+     MOTHERBOARD PLATFORM
+========================= -->
+
+<a-box
+    position="0 .3 -4"
+    width="30"
+    height=".5"
+    depth="25"
+    material="
+        color:#03151a;
+        metalness:.9;
+        roughness:.25;
+    ">
+</a-box>
+
+
+<!-- =========================
+     CIRCUIT TRACES
+========================= -->
+
+<a-entity id="circuits"></a-entity>
+
+
+<!-- =========================
+     CPU CORE
+========================= -->
+
+<a-entity
+    id="cpu"
+    class="interactive"
+    position="0 3 -7"
+    computer-component="
+        title:CPU — CENTRAL PROCESSING UNIT;
+        description:The computational brain of the system. The CPU executes instructions, performs calculations and coordinates operations between hardware and software.;
+        tech:ALU|Control Unit|Registers|Cache|Instruction Cycle;
+    ">
+
+    <a-box
+        width="4"
+        height="2"
+        depth="4"
+        material="
+            color:#081a22;
+            emissive:#002f3b;
+            emissiveIntensity:1;
+            metalness:.9;
+            roughness:.2;
+        ">
+    </a-box>
+
+    <a-box
+        width="2.7"
+        height=".15"
+        depth="2.7"
+        position="0 1.08 0"
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:3;
+        "
+        animation="
+            property:material.emissiveIntensity;
+            from:.5;
+            to:4;
+            dir:alternate;
+            loop:true;
+            dur:900;
+        ">
+    </a-box>
+
+    <a-text
+        value="CPU"
+        align="center"
+        position="0 1.3 0"
+        rotation="0 0 0"
+        width="5"
         color="#ffffff">
-    </a-light>
+    </a-text>
+
+</a-entity>
 
 
-    <a-light
-        type="point"
-        position="0 5 0"
-        intensity="7"
-        distance="35"
-        color="#00ffff">
-    </a-light>
+<!-- CPU RINGS -->
+
+<a-torus
+    position="0 3 -7"
+    rotation="90 0 0"
+    radius="3"
+    radius-tubular=".025"
+    material="
+        color:#00eaff;
+        emissive:#00eaff;
+        emissiveIntensity:3;
+    "
+    animation="
+        property:rotation;
+        to:90 360 0;
+        loop:true;
+        dur:8000;
+        easing:linear;
+    ">
+</a-torus>
 
 
-    <a-light
-        type="point"
-        position="-10 6 -8"
-        intensity="4"
-        distance="25"
-        color="#ff00ff">
-    </a-light>
+<a-torus
+    position="0 3 -7"
+    rotation="90 0 0"
+    radius="3.6"
+    radius-tubular=".018"
+    material="
+        color:#ff00d4;
+        emissive:#ff00d4;
+        emissiveIntensity:2;
+    "
+    animation="
+        property:rotation;
+        to:90 -360 0;
+        loop:true;
+        dur:12000;
+        easing:linear;
+    ">
+</a-torus>
 
 
-    <a-light
-        type="point"
-        position="10 4 -12"
-        intensity="4"
-        distance="25"
-        color="#0066ff">
-    </a-light>
+<!-- =========================
+     RAM
+========================= -->
 
+<a-entity
+    id="ram"
+    class="interactive"
+    position="-9 2.5 -4"
+    computer-component="
+        title:RAM — RANDOM ACCESS MEMORY;
+        description:High-speed temporary memory used by the computer to store active programs and data so the processor can access them quickly.;
+        tech:Volatile Memory|Memory Cells|DDR|Bandwidth|Latency;
+    ">
 
-
-    <!-- =====================================================
-         FLOOR
-    ====================================================== -->
-
-    <a-plane
-
-        rotation="-90 0 0"
-
-        width="100"
-
-        height="100"
-
+    <a-box
+        width="1"
+        height="5"
+        depth=".6"
         material="
-            color: #020611;
-            roughness: 0.8;
-            metalness: 0.3;
+            color:#071b14;
+            emissive:#003d25;
+            emissiveIntensity:1;
+            metalness:.7;
         ">
+    </a-box>
 
-    </a-plane>
-
-
-
-    <!-- =====================================================
-         CENTRAL NEURAL CORE
-    ====================================================== -->
-
-    <a-entity
-        id="neuralCore"
-        position="0 2 -3">
-
-
-        <!-- OUTER ENERGY FIELD -->
-
-        <a-sphere
-
-            radius="3"
-
-            material="
-                color: #002b38;
-                transparent: true;
-                opacity: 0.12;
-                emissive: #00ffff;
-            "
-
-            animation="
-                property: scale;
-                from: 0.95 0.95 0.95;
-                to: 1.08 1.08 1.08;
-                dir: alternate;
-                loop: true;
-                dur: 2400;
-                easing: easeInOutSine;
-            ">
-
-        </a-sphere>
-
-
-        <!-- CORE -->
-
-        <a-icosahedron
-
-            radius="1.65"
-
-            material="
-                color: #062530;
-                emissive: #00ffff;
-                emissiveIntensity: 0.8;
-                metalness: 0.8;
-                roughness: 0.2;
-            "
-
-            animation="
-                property: rotation;
-                to: 360 360 360;
-                loop: true;
-                dur: 14000;
-                easing: linear;
-            ">
-
-        </a-icosahedron>
-
-
-        <!-- INNER CORE -->
-
-        <a-sphere
-
-            radius="0.72"
-
-            material="
-                color: #00141c;
-                emissive: #00ffff;
-                emissiveIntensity: 2;
-            "
-
-            animation="
-                property: scale;
-                from: 0.85 0.85 0.85;
-                to: 1.15 1.15 1.15;
-                dir: alternate;
-                loop: true;
-                dur: 1200;
-            ">
-
-        </a-sphere>
-
-
-        <!-- CORE TEXT -->
-
-        <a-text
-
-            value="PARV"
-
-            align="center"
-
-            width="5"
-
-            position="0 0 1.9"
-
-            color="#ffffff">
-
-        </a-text>
-
-
-    </a-entity>
-
-
-
-    <!-- =====================================================
-         ORBIT 1
-    ====================================================== -->
-
-    <a-torus
-
-        position="0 2 -3"
-
-        rotation="70 0 20"
-
-        radius="3.8"
-
-        radius-tubular="0.025"
-
+    <a-box
+        width=".75"
+        height="4"
+        depth=".08"
+        position="0 0 .35"
         material="
-            color: #00ffff;
-            emissive: #00ffff;
-            emissiveIntensity: 1;
-        "
-
-        animation="
-            property: rotation;
-            to: 70 360 20;
-            loop: true;
-            dur: 18000;
-            easing: linear;
+            color:#73ffbd;
+            emissive:#73ffbd;
+            emissiveIntensity:2;
         ">
+    </a-box>
 
-    </a-torus>
+    <a-text
+        value="RAM"
+        align="center"
+        position="0 0 .5"
+        rotation="0 0 0"
+        width="3"
+        color="#73ffbd">
+    </a-text>
+
+</a-entity>
 
 
+<!-- RAM ARRAY -->
 
-    <!-- =====================================================
-         ORBIT 2
-    ====================================================== -->
+<a-entity
+    position="-9 2.5 -4"
+    animation="
+        property:rotation;
+        to:0 360 0;
+        loop:true;
+        dur:20000;
+        easing:linear;
+    ">
 
-    <a-torus
-
-        position="0 2 -3"
-
-        rotation="60 40 0"
-
-        radius="5.7"
-
-        radius-tubular="0.025"
-
+    <a-ring
+        rotation="90 0 0"
+        radius-inner="3"
+        radius-outer="3.04"
         material="
-            color: #ff00ff;
-            emissive: #ff00ff;
-            emissiveIntensity: 1;
-        "
-
-        animation="
-            property: rotation;
-            to: 420 40 360;
-            loop: true;
-            dur: 25000;
-            easing: linear;
+            color:#73ffbd;
+            emissive:#73ffbd;
+            emissiveIntensity:2;
         ">
-
-    </a-torus>
-
-
-
-    <!-- =====================================================
-         ORBIT 3
-    ====================================================== -->
-
-    <a-torus
-
-        position="0 2 -3"
-
-        rotation="75 0 80"
-
-        radius="7.7"
-
-        radius-tubular="0.02"
-
-        material="
-            color: #0066ff;
-            emissive: #0066ff;
-            emissiveIntensity: 1;
-        "
-
-        animation="
-            property: rotation;
-            to: 435 360 80;
-            loop: true;
-            dur: 30000;
-            easing: linear;
-        ">
-
-    </a-torus>
-
-
-
-    <!-- =====================================================
-         PROJECT NODES
-    ====================================================== -->
-
-
-    <!-- PROJECT 1 -->
-
-    <a-entity
-
-        id="projectAI"
-
-        class="interactive projectNode"
-
-        project-id="ai"
-
-        position="0 2 1"
-
-        project-node>
-
-
-        <a-sphere
-
-            radius="0.58"
-
-            material="
-                color: #00ffff;
-                emissive: #003d44;
-                metalness: 0.7;
-                roughness: 0.2;
-            ">
-
-        </a-sphere>
-
-
-        <a-torus
-
-            radius="0.78"
-
-            radius-tubular="0.025"
-
-            rotation="90 0 0"
-
-            material="
-                color: #00ffff;
-                emissive: #00ffff;
-            "
-
-            animation="
-                property: rotation;
-                to: 90 360 0;
-                loop: true;
-                dur: 3000;
-                easing: linear;
-            ">
-
-        </a-torus>
-
-
-        <a-text
-
-            value="AI ASSISTANT"
-
-            align="center"
-
-            width="3.5"
-
-            position="0 0.95 0"
-
-            color="#00ffff">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- PROJECT 2 -->
-
-    <a-entity
-
-        id="projectAgents"
-
-        class="interactive projectNode"
-
-        project-id="agents"
-
-        position="5 3 -4"
-
-        project-node>
-
-
-        <a-dodecahedron
-
-            radius="0.68"
-
-            material="
-                color: #ff00ff;
-                emissive: #450045;
-                metalness: 0.6;
-            ">
-
-        </a-dodecahedron>
-
-
-        <a-torus
-
-            radius="0.9"
-
-            radius-tubular="0.02"
-
-            rotation="45 0 0"
-
-            material="
-                color: #ff00ff;
-                emissive: #ff00ff;
-            "
-
-            animation="
-                property: rotation;
-                to: 405 360 0;
-                loop: true;
-                dur: 3500;
-                easing: linear;
-            ">
-
-        </a-torus>
-
-
-        <a-text
-
-            value="AI AGENTS"
-
-            align="center"
-
-            width="3.5"
-
-            position="0 1.05 0"
-
-            color="#ff00ff">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- PROJECT 3 -->
-
-    <a-entity
-
-        id="projectWeb"
-
-        class="interactive projectNode"
-
-        project-id="web"
-
-        position="-5 3 -4"
-
-        project-node>
-
-
-        <a-octahedron
-
-            radius="0.72"
-
-            material="
-                color: #00ff99;
-                emissive: #003d25;
-                metalness: 0.7;
-            ">
-
-        </a-octahedron>
-
-
-        <a-text
-
-            value="WEB SYSTEMS"
-
-            align="center"
-
-            width="3.5"
-
-            position="0 1.1 0"
-
-            color="#00ff99">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- PROJECT 4 -->
-
-    <a-entity
-
-        id="projectML"
-
-        class="interactive projectNode"
-
-        project-id="ml"
-
-        position="7 2 -10"
-
-        project-node>
-
-
-        <a-icosahedron
-
-            radius="0.78"
-
-            material="
-                color: #ffff00;
-                emissive: #3d3d00;
-                metalness: 0.6;
-            ">
-
-        </a-icosahedron>
-
-
-        <a-text
-
-            value="ML LAB"
-
-            align="center"
-
-            width="3"
-
-            position="0 1.15 0"
-
-            color="#ffff00">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- PROJECT 5 -->
-
-    <a-entity
-
-        id="projectFullStack"
-
-        class="interactive projectNode"
-
-        project-id="fullstack"
-
-        position="-7 2 -10"
-
-        project-node>
-
-
-        <a-box
-
-            width="1.25"
-
-            height="1.25"
-
-            depth="1.25"
-
-            material="
-                color: #ff6633;
-                emissive: #401000;
-                metalness: 0.6;
-            ">
-
-        </a-box>
-
-
-        <a-text
-
-            value="FULL STACK"
-
-            align="center"
-
-            width="3"
-
-            position="0 1.2 0"
-
-            color="#ff6633">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- PROJECT 6 -->
-
-    <a-entity
-
-        id="projectFuture"
-
-        class="interactive projectNode"
-
-        project-id="future"
-
-        position="0 6 -12"
-
-        project-node>
-
-
-        <a-tetrahedron
-
-            radius="0.9"
-
-            material="
-                color: #0088ff;
-                emissive: #001a40;
-                metalness: 0.7;
-            ">
-
-        </a-tetrahedron>
-
-
-        <a-text
-
-            value="FUTURE LAB"
-
-            align="center"
-
-            width="3.5"
-
-            position="0 1.3 0"
-
-            color="#0088ff">
-
-        </a-text>
-
-    </a-entity>
-
-
-
-    <!-- =====================================================
-         ENERGY BEAMS
-    ====================================================== -->
+    </a-ring>
+
+</a-entity>
+
+
+<!-- =========================
+     STORAGE
+========================= -->
+
+<a-entity
+    id="storage"
+    class="interactive"
+    position="9 2.3 -4"
+    computer-component="
+        title:STORAGE — MEMORY VAULT;
+        description:Permanent digital storage where files, applications and operating system data survive after the computer is powered down.;
+        tech:SSD|NAND Flash|File System|Blocks|Persistence;
+    ">
 
     <a-cylinder
-
-        position="0 5 -3"
-
-        radius="0.018"
-
-        height="6"
-
+        radius="2"
+        height="1"
         material="
-            color: #00ffff;
-            emissive: #00ffff;
-            opacity: 0.45;
-            transparent: true;
-        "
-
-        animation="
-            property: scale;
-            from: 1 0.4 1;
-            to: 1 1.2 1;
-            dir: alternate;
-            loop: true;
-            dur: 1800;
+            color:#161020;
+            emissive:#290047;
+            emissiveIntensity:1;
+            metalness:.9;
         ">
-
     </a-cylinder>
 
+    <a-cylinder
+        radius="1.5"
+        height="1.05"
+        material="
+            color:#ff00d4;
+            emissive:#ff00d4;
+            emissiveIntensity:2;
+        ">
+    </a-cylinder>
+
+    <a-text
+        value="SSD"
+        align="center"
+        position="0 0 1.6"
+        rotation="0 0 0"
+        width="3"
+        color="#ffffff">
+    </a-text>
+
+</a-entity>
 
 
-    <!-- =====================================================
-         STAR FIELD
-    ====================================================== -->
+<!-- =========================
+     GPU
+========================= -->
 
-    <a-entity id="starField"></a-entity>
+<a-entity
+    id="gpu"
+    class="interactive"
+    position="0 2 -14"
+    computer-component="
+        title:GPU — GRAPHICS PROCESSING UNIT;
+        description:A massively parallel processor designed to perform thousands of operations simultaneously. Modern GPUs are essential for graphics, machine learning and AI.;
+        tech:Parallel Computing|CUDA|Tensor Cores|Rendering|AI;
+    ">
+
+    <a-box
+        width="8"
+        height="1.8"
+        depth="3"
+        material="
+            color:#10130a;
+            emissive:#243500;
+            emissiveIntensity:1;
+            metalness:.8;
+        ">
+    </a-box>
+
+    <a-cylinder
+        radius="1.1"
+        height=".5"
+        rotation="90 0 0"
+        position="-2 0 1.6"
+        material="
+            color:#b6ff00;
+            emissive:#b6ff00;
+            emissiveIntensity:2;
+        "
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:800;
+            easing:linear;
+        ">
+    </a-cylinder>
+
+    <a-cylinder
+        radius="1.1"
+        height=".5"
+        rotation="90 0 0"
+        position="2 0 1.6"
+        material="
+            color:#b6ff00;
+            emissive:#b6ff00;
+            emissiveIntensity:2;
+        "
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:800;
+            easing:linear;
+        ">
+    </a-cylinder>
+
+    <a-text
+        value="GPU / AI ENGINE"
+        align="center"
+        position="0 1.3 1.6"
+        width="6"
+        color="#b6ff00">
+    </a-text>
+
+</a-entity>
 
 
+<!-- =========================
+     NETWORK CORE
+========================= -->
 
-    <!-- =====================================================
-         FLOATING PARTICLES
-    ====================================================== -->
+<a-entity
+    id="network"
+    class="interactive"
+    position="-11 4 -13"
+    computer-component="
+        title:NETWORK — DIGITAL NERVOUS SYSTEM;
+        description:Networks allow computers and devices to exchange information. Data travels through packets across interconnected systems.;
+        tech:TCP/IP|Packets|Routing|DNS|Internet;
+    ">
 
-    <a-entity id="particleField"></a-entity>
+    <a-sphere
+        radius="1.5"
+        material="
+            color:#003cff;
+            emissive:#003cff;
+            emissiveIntensity:3;
+            transparent:true;
+            opacity:.8;
+        "
+        animation="
+            property:scale;
+            from:1 1 1;
+            to:1.25 1.25 1.25;
+            dir:alternate;
+            loop:true;
+            dur:1200;
+        ">
+    </a-sphere>
+
+    <a-torus
+        radius="2.5"
+        radius-tubular=".03"
+        rotation="45 0 0"
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:3;
+        "
+        animation="
+            property:rotation;
+            to:45 360 360;
+            loop:true;
+            dur:6000;
+            easing:linear;
+        ">
+    </a-torus>
+
+</a-entity>
 
 
+<!-- =========================
+     AI CORE
+========================= -->
 
-    <!-- =====================================================
-         CAMERA TARGET
-    ====================================================== -->
+<a-entity
+    id="ai"
+    class="interactive"
+    position="11 4 -13"
+    computer-component="
+        title:AI ENGINE — INTELLIGENCE LAYER;
+        description:The intelligence layer transforms data into predictions, decisions and generated outputs using machine learning and modern AI systems.;
+        tech:Machine Learning|Neural Networks|LLMs|Generative AI|Agents;
+    ">
 
-    <a-entity
+    <a-icosahedron
+        radius="2"
+        detail="2"
+        material="
+            color:#ff00d4;
+            emissive:#ff00d4;
+            emissiveIntensity:3;
+            metalness:.5;
+            roughness:.2;
+        "
+        animation="
+            property:rotation;
+            to:360 360 360;
+            loop:true;
+            dur:10000;
+            easing:linear;
+        ">
+    </a-icosahedron>
 
-        id="cameraTarget"
+    <a-ring
+        rotation="90 0 0"
+        radius-inner="2.8"
+        radius-outer="2.84"
+        material="
+            color:#ff00d4;
+            emissive:#ff00d4;
+            emissiveIntensity:3;
+        "
+        animation="
+            property:rotation;
+            to:90 -360 0;
+            loop:true;
+            dur:5000;
+            easing:linear;
+        ">
+    </a-ring>
 
-        position="0 2 -3">
+</a-entity>
 
-    </a-entity>
+
+<!-- =========================
+     OPERATING SYSTEM
+========================= -->
+
+<a-entity
+    id="os"
+    class="interactive"
+    position="0 4 -19"
+    computer-component="
+        title:OPERATING SYSTEM;
+        description:The operating system manages hardware, memory, processes, files and interaction between applications and the underlying computer.;
+        tech:Processes|Threads|Memory Management|File Systems|Kernel;
+    ">
+
+    <a-box
+        width="9"
+        height="5"
+        depth=".5"
+        material="
+            color:#061820;
+            emissive:#003442;
+            emissiveIntensity:1;
+            metalness:.7;
+        ">
+    </a-box>
+
+    <a-plane
+        width="7.8"
+        height="3.8"
+        position="0 0 .3"
+        material="
+            color:#02080d;
+            emissive:#001a22;
+            emissiveIntensity:1;
+        ">
+    </a-plane>
+
+    <a-text
+        value="OPERATING SYSTEM"
+        align="center"
+        position="0 1.2 .5"
+        width="6"
+        color="#00eaff">
+    </a-text>
+
+    <a-text
+        value="KERNEL // PROCESS // MEMORY // FILES"
+        align="center"
+        position="0 .3 .5"
+        width="5"
+        color="#73ffbd">
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================
+     POWER CORE
+========================= -->
+
+<a-entity
+    position="0 1 -1">
+
+    <a-cylinder
+        radius="2"
+        height=".4"
+        material="
+            color:#ff5e00;
+            emissive:#ff5e00;
+            emissiveIntensity:3;
+        "
+        animation="
+            property:material.emissiveIntensity;
+            from:1;
+            to:5;
+            dir:alternate;
+            loop:true;
+            dur:500;
+        ">
+    </a-cylinder>
+
+    <a-text
+        value="POWER"
+        align="center"
+        position="0 .6 0"
+        width="3"
+        color="#ff8c00">
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================
+     DATA TUNNEL
+========================= -->
+
+<a-entity id="dataTunnel"></a-entity>
+
+
+<!-- =========================
+     PARTICLES
+========================= -->
+
+<a-entity id="particles"></a-entity>
+
+
+<!-- =========================
+     DIGITAL DATA STREAM
+========================= -->
+
+<a-entity id="dataStream"></a-entity>
 
 
 </a-scene>
 
 
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================= -->
-
 <script>
 
+/* =====================================
+   COMPONENT DATA SYSTEM
+===================================== */
 
-/* ==========================================================
-   PROJECT DATABASE
-========================================================== */
+const componentData = {
 
-const projects = {
-
-    ai: {
-
-        category:
-            "CHAPTER 02 // INTELLIGENCE",
-
-        title:
-            "AI RESEARCH ASSISTANT",
-
+    cpu:{
+        title:"CPU — CENTRAL PROCESSING UNIT",
         description:
-            "An intelligent research system designed to help users explore information, summarize knowledge and interact with AI-powered workflows.",
-
-        tech:
-            [
-                "Python",
-                "LLMs",
-                "RAG",
-                "FastAPI"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+        "The computational brain of the system. The CPU executes instructions, performs calculations and coordinates operations between hardware and software.",
+        tech:["ALU","Control Unit","Registers","Cache","Instruction Cycle"]
     },
 
-
-    agents: {
-
-        category:
-            "CHAPTER 03 // AUTONOMY",
-
-        title:
-            "AGENTIC AI SYSTEM",
-
+    ram:{
+        title:"RAM — RANDOM ACCESS MEMORY",
         description:
-            "A multi-step AI agent concept where autonomous systems can reason about a task, select tools and execute a sequence of actions.",
-
-        tech:
-            [
-                "Python",
-                "LLMs",
-                "AI Agents",
-                "APIs"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+        "High-speed temporary memory used by the computer to store active programs and data so the processor can access them quickly.",
+        tech:["Volatile Memory","Memory Cells","DDR","Bandwidth","Latency"]
     },
 
-
-    web: {
-
-        category:
-            "CHAPTER 02 // BUILD",
-
-        title:
-            "3D WEB EXPERIENCE",
-
+    storage:{
+        title:"STORAGE — MEMORY VAULT",
         description:
-            "Interactive browser-based experiences combining frontend engineering, creative interfaces and real-time 3D graphics.",
-
-        tech:
-            [
-                "HTML",
-                "CSS",
-                "JavaScript",
-                "A-Frame"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+        "Permanent digital storage where files, applications and operating system data survive after the computer is powered down.",
+        tech:["SSD","NAND Flash","File System","Blocks","Persistence"]
     },
 
-
-    ml: {
-
-        category:
-            "CHAPTER 03 // LEARNING",
-
-        title:
-            "MACHINE LEARNING LAB",
-
+    gpu:{
+        title:"GPU — GRAPHICS PROCESSING UNIT",
         description:
-            "An experimental environment for exploring machine learning concepts, data processing and intelligent prediction systems.",
-
-        tech:
-            [
-                "Python",
-                "NumPy",
-                "Pandas",
-                "Scikit-learn"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+        "A massively parallel processor designed to perform thousands of operations simultaneously. Modern GPUs are essential for graphics, machine learning and AI.",
+        tech:["Parallel Computing","CUDA","Tensor Cores","Rendering","AI"]
     },
 
-
-    fullstack: {
-
-        category:
-            "CHAPTER 02 // ENGINEERING",
-
-        title:
-            "FULL STACK SYSTEM",
-
+    network:{
+        title:"NETWORK — DIGITAL NERVOUS SYSTEM",
         description:
-            "A complete web application concept connecting user interfaces, APIs, databases and authentication into one system.",
-
-        tech:
-            [
-                "JavaScript",
-                "Node.js",
-                "Express",
-                "MongoDB"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+        "Networks allow computers and devices to exchange information. Data travels through packets across interconnected systems.",
+        tech:["TCP/IP","Packets","Routing","DNS","Internet"]
     },
 
-
-    future: {
-
-        category:
-            "CHAPTER 04 // FUTURE",
-
-        title:
-            "FUTURE LAB",
-
+    ai:{
+        title:"AI ENGINE — INTELLIGENCE LAYER",
         description:
-            "A space for experiments combining AI, 3D interfaces, autonomous systems and emerging technologies.",
+        "The intelligence layer transforms data into predictions, decisions and generated outputs using machine learning and modern AI systems.",
+        tech:["Machine Learning","Neural Networks","LLMs","Generative AI","Agents"]
+    },
 
-        tech:
-            [
-                "AI",
-                "WebXR",
-                "A-Frame",
-                "Experiments"
-            ],
-
-        github:
-            "https://github.com/",
-
-        demo:
-            "#"
-
+    os:{
+        title:"OPERATING SYSTEM",
+        description:
+        "The operating system manages hardware, memory, processes, files and interaction between applications and the underlying computer.",
+        tech:["Processes","Threads","Memory Management","File Systems","Kernel"]
     }
 
 };
 
 
+/* =====================================
+   INTERACTIVE COMPONENT
+===================================== */
 
-/* ==========================================================
-   A-FRAME PROJECT NODE COMPONENT
-========================================================== */
+AFRAME.registerComponent("computer-component",{
 
-AFRAME.registerComponent(
-    "project-node",
-    {
+    schema:{
+        title:{type:"string"},
+        description:{type:"string"},
+        tech:{type:"string"}
+    },
 
-        init: function () {
+    init:function(){
 
-            const object =
-                this.el;
+        const el=this.el;
 
-            object.addEventListener(
-                "mouseenter",
-                function () {
+        el.classList.add("interactive");
 
-                    object.setAttribute(
-                        "animation__hover",
-                        {
-                            property: "scale",
+        el.addEventListener("mouseenter",()=>{
 
-                            to:
-                                "1.35 1.35 1.35",
-
-                            dur: 250,
-
-                            easing:
-                                "easeOutQuad"
-                        }
-                    );
-
+            el.setAttribute(
+                "animation__hover",
+                {
+                    property:"scale",
+                    to:"1.08 1.08 1.08",
+                    dur:250,
+                    easing:"easeOutQuad"
                 }
             );
 
+        });
 
-            object.addEventListener(
-                "mouseleave",
-                function () {
+        el.addEventListener("mouseleave",()=>{
 
-                    object.setAttribute(
-                        "animation__hover",
-                        {
-                            property: "scale",
-
-                            to:
-                                "1 1 1",
-
-                            dur: 250,
-
-                            easing:
-                                "easeOutQuad"
-                        }
-                    );
-
+            el.setAttribute(
+                "animation__hover",
+                {
+                    property:"scale",
+                    to:"1 1 1",
+                    dur:250,
+                    easing:"easeOutQuad"
                 }
             );
 
+        });
 
-            object.addEventListener(
-                "click",
-                function () {
+        el.addEventListener("click",()=>{
 
-                    const id =
-                        object.getAttribute(
-                            "project-id"
-                        );
-
-                    openProject(id);
-
-                }
+            openPanel(
+                this.data.title,
+                this.data.description,
+                this.data.tech.split("|")
             );
 
-        }
+        });
 
     }
-);
+
+});
 
 
+/* =====================================
+   PANEL
+===================================== */
 
-/* ==========================================================
-   OPEN PROJECT
-========================================================== */
+const panel=document.getElementById("panel");
 
-function openProject(id) {
+const panelTitle=document.getElementById("panelTitle");
 
-    const project =
-        projects[id];
+const panelDescription=
+document.getElementById("panelDescription");
 
-    if (!project) return;
-
-
-    document.getElementById(
-        "panelCategory"
-    ).textContent =
-        project.category;
+const panelTech=
+document.getElementById("panelTech");
 
 
-    document.getElementById(
-        "panelTitle"
-    ).textContent =
-        project.title;
+function openPanel(title,description,tech){
 
+    panelTitle.textContent=title;
 
-    document.getElementById(
-        "panelDescription"
-    ).textContent =
-        project.description;
+    panelDescription.textContent=description;
 
+    panelTech.innerHTML="";
 
-    const tech =
-        document.getElementById(
-            "techContainer"
-        );
+    tech.forEach(item=>{
 
+        const tag=document.createElement("span");
 
-    tech.innerHTML = "";
+        tag.textContent=item;
 
+        panelTech.appendChild(tag);
 
-    project.tech.forEach(
-        item => {
+    });
 
-            const tag =
-                document.createElement(
-                    "div"
-                );
-
-            tag.className =
-                "techTag";
-
-            tag.textContent =
-                item;
-
-            tech.appendChild(tag);
-
-        }
-    );
-
-
-    document.getElementById(
-        "githubLink"
-    ).href =
-        project.github;
-
-
-    document.getElementById(
-        "demoLink"
-    ).href =
-        project.demo;
-
-
-    document.getElementById(
-        "projectPanel"
-    ).classList.add(
-        "active"
-    );
+    panel.classList.add("active");
 
 }
 
 
+document
+.getElementById("closePanel")
+.addEventListener("click",()=>{
 
-/* ==========================================================
-   CLOSE PROJECT
-========================================================== */
+    panel.classList.remove("active");
 
-function closeProject() {
+});
 
-    document.getElementById(
-        "projectPanel"
-    ).classList.remove(
-        "active"
+
+/* =====================================
+   FLOOR GRID
+===================================== */
+
+const grid=document.getElementById("grid");
+
+for(let x=-20;x<=20;x+=2){
+
+    const line=document.createElement("a-entity");
+
+    line.setAttribute(
+        "geometry",
+        "primitive:box; width:.015; height:.02; depth:40"
     );
+
+    line.setAttribute(
+        "position",
+        `${x} .02 -5`
+    );
+
+    line.setAttribute(
+        "material",
+        `
+        color:#07343e;
+        emissive:#07343e;
+        emissiveIntensity:1
+        `
+    );
+
+    grid.appendChild(line);
 
 }
 
 
-document.getElementById(
-    "closePanel"
-).addEventListener(
-    "click",
-    closeProject
-);
+for(let z=-23;z<=15;z+=2){
 
+    const line=document.createElement("a-entity");
 
-
-/* ==========================================================
-   ESCAPE KEY
-========================================================== */
-
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (event.key === "Escape") {
-
-            closeProject();
-
-        }
-
-    }
-);
-
-
-
-/* ==========================================================
-   STAR FIELD
-========================================================== */
-
-const starField =
-    document.getElementById(
-        "starField"
+    line.setAttribute(
+        "geometry",
+        "primitive:box; width:40; height:.02; depth:.015"
     );
 
+    line.setAttribute(
+        "position",
+        `0 .025 ${z}`
+    );
 
-for (
-    let i = 0;
-    i < 450;
-    i++
-) {
+    line.setAttribute(
+        "material",
+        `
+        color:#07343e;
+        emissive:#07343e;
+        emissiveIntensity:1
+        `
+    );
 
-    const star =
-        document.createElement(
-            "a-sphere"
-        );
+    grid.appendChild(line);
 
-
-    const x =
-        (Math.random() - 0.5)
-        * 100;
-
-
-    const y =
-        Math.random() * 55;
+}
 
 
-    const z =
-        (Math.random() - 0.5)
-        * 100;
+/* =====================================
+   CIRCUIT CONNECTIONS
+===================================== */
+
+const circuits=document.getElementById("circuits");
+
+function circuit(x,z,w,d){
+
+    const line=document.createElement("a-box");
+
+    line.setAttribute(
+        "position",
+        `${x} .36 ${z}`
+    );
+
+    line.setAttribute(
+        "width",
+        w
+    );
+
+    line.setAttribute(
+        "height",
+        ".025"
+    );
+
+    line.setAttribute(
+        "depth",
+        d
+    );
+
+    line.setAttribute(
+        "material",
+        `
+        color:#00eaff;
+        emissive:#00eaff;
+        emissiveIntensity:2
+        `
+    );
+
+    circuits.appendChild(line);
+
+}
 
 
-    const size =
-        Math.random()
-        * 0.035
-        + 0.008;
+circuit(-5,-4,7,.04);
+circuit(5,-4,7,.04);
+circuit(0,-10,.04,10);
+circuit(-7,-9,.04,5);
+circuit(7,-9,.04,5);
+circuit(-12,-7,5,.04);
+circuit(12,-7,5,.04);
 
 
-    star.setAttribute(
+/* =====================================
+   DATA TUNNEL
+===================================== */
+
+const tunnel=document.getElementById("dataTunnel");
+
+for(let i=0;i<12;i++){
+
+    const ring=document.createElement("a-torus");
+
+    ring.setAttribute(
+        "position",
+        `0 ${2.5+i*.15} ${-2-i*1.3}`
+    );
+
+    ring.setAttribute(
+        "rotation",
+        "90 0 0"
+    );
+
+    ring.setAttribute(
+        "radius",
+        `${4+i*.1}`
+    );
+
+    ring.setAttribute(
+        "radius-tubular",
+        ".025"
+    );
+
+    ring.setAttribute(
+        "material",
+        `
+        color:#00eaff;
+        emissive:#00eaff;
+        emissiveIntensity:2
+        `
+    );
+
+    ring.setAttribute(
+        "animation",
+        `
+        property:rotation;
+        to:90 360 0;
+        loop:true;
+        dur:${5000+i*300};
+        easing:linear
+        `
+    );
+
+    tunnel.appendChild(ring);
+
+}
+
+
+/* =====================================
+   PARTICLE FIELD
+===================================== */
+
+const particles=
+document.getElementById("particles");
+
+for(let i=0;i<250;i++){
+
+    const p=document.createElement("a-sphere");
+
+    const x=(Math.random()*40)-20;
+
+    const y=Math.random()*14+.5;
+
+    const z=(Math.random()*40)-24;
+
+    const size=Math.random()*.035+.01;
+
+    p.setAttribute(
         "position",
         `${x} ${y} ${z}`
     );
 
-
-    star.setAttribute(
+    p.setAttribute(
         "radius",
         size
     );
 
-
-    star.setAttribute(
+    p.setAttribute(
         "material",
         `
-            color: #ffffff;
-            emissive: #ffffff;
-            emissiveIntensity: 1;
+        color:#00eaff;
+        emissive:#00eaff;
+        emissiveIntensity:${Math.random()*3+1}
         `
     );
 
-
-    starField.appendChild(
-        star
-    );
-
-}
-
-
-
-/* ==========================================================
-   PARTICLE FIELD
-========================================================== */
-
-const particleField =
-    document.getElementById(
-        "particleField"
-    );
-
-
-for (
-    let i = 0;
-    i < 100;
-    i++
-) {
-
-    const particle =
-        document.createElement(
-            "a-sphere"
-        );
-
-
-    const angle =
-        Math.random()
-        * Math.PI
-        * 2;
-
-
-    const radius =
-        4 +
-        Math.random() * 18;
-
-
-    const x =
-        Math.cos(angle)
-        * radius;
-
-
-    const z =
-        -3 +
-        Math.sin(angle)
-        * radius;
-
-
-    const y =
-        1 +
-        Math.random() * 10;
-
-
-    particle.setAttribute(
-        "position",
-        `${x} ${y} ${z}`
-    );
-
-
-    particle.setAttribute(
-        "radius",
-        Math.random()
-        * 0.025
-        + 0.01
-    );
-
-
-    particle.setAttribute(
-        "material",
-        `
-            color: #00ffff;
-            emissive: #00ffff;
-            emissiveIntensity: 1;
-        `
-    );
-
-
-    particle.setAttribute(
+    p.setAttribute(
         "animation",
         `
-            property: position;
-            dir: alternate;
-            loop: true;
-            dur: ${
-                2000 +
-                Math.random() * 4000
-            };
-            easing: easeInOutSine;
+        property:position;
+        to:${x} ${y+Math.random()*2} ${z};
+        dir:alternate;
+        loop:true;
+        dur:${3000+Math.random()*5000};
+        easing:easeInOutSine
         `
     );
 
-
-    particleField.appendChild(
-        particle
-    );
+    particles.appendChild(p);
 
 }
 
 
+/* =====================================
+   DATA PACKETS
+===================================== */
 
-/* ==========================================================
-   INTRO SCREEN
-========================================================== */
+const stream=
+document.getElementById("dataStream");
 
-const enterButton =
-    document.getElementById(
-        "enterButton"
+for(let i=0;i<30;i++){
+
+    const packet=document.createElement("a-box");
+
+    packet.setAttribute(
+        "width",".08"
     );
 
-
-const loading =
-    document.getElementById(
-        "loading"
+    packet.setAttribute(
+        "height",".08"
     );
 
+    packet.setAttribute(
+        "depth",".08"
+    );
 
-enterButton.addEventListener(
-    "click",
-    function () {
+    packet.setAttribute(
+        "material",
+        `
+        color:#73ffbd;
+        emissive:#73ffbd;
+        emissiveIntensity:3
+        `
+    );
 
-        loading.style.opacity =
-            "0";
+    const startX=-12+Math.random()*24;
+
+    packet.setAttribute(
+        "position",
+        `${startX} .5 -4`
+    );
+
+    packet.setAttribute(
+        "animation",
+        `
+        property:position;
+        to:${12-Math.random()*24} .5 -4;
+        loop:true;
+        dur:${2000+Math.random()*3000};
+        easing:linear;
+        delay:${Math.random()*3000}
+        `
+    );
+
+    stream.appendChild(packet);
+
+}
 
 
-        setTimeout(
-            function () {
+/* =====================================
+   CHAPTER DETECTION
+===================================== */
 
-                loading.style.display =
-                    "none";
+const cameraRig=
+document.getElementById("cameraRig");
 
-            },
-            1000
-        );
+const locationText=
+document.getElementById("location");
+
+
+setInterval(()=>{
+
+    const pos=cameraRig.object3D.position;
+
+    if(pos.z>5){
+
+        locationText.textContent=
+        "SECTOR: INPUT / ENTRY";
 
     }
-);
+
+    else if(pos.z>-8){
+
+        locationText.textContent=
+        "SECTOR: PROCESSING CORE";
+
+    }
+
+    else if(pos.z>-16){
+
+        locationText.textContent=
+        "SECTOR: COMPUTATION";
+
+    }
+
+    else{
+
+        locationText.textContent=
+        "SECTOR: INTELLIGENCE / OUTPUT";
+
+    }
+
+},300);
 
 
+/* =====================================
+   SYSTEM STATUS
+===================================== */
 
-/* ==========================================================
-   CHAPTER SYSTEM
-========================================================== */
+const status=
+document.getElementById("status");
 
-const chapterTitle =
-    document.getElementById(
-        "chapterTitle"
-    );
+setInterval(()=>{
+
+    const cpu=
+    Math.floor(20+Math.random()*60);
+
+    const memory=
+    Math.floor(40+Math.random()*45);
+
+    status.textContent=
+    `CPU LOAD ${cpu}% · MEMORY ${memory}%`;
+
+},1000);
 
 
-const chapterDescription =
-    document.getElementById(
-        "chapterDescription"
-    );
+/* =====================================
+   GUIDED TOUR
+===================================== */
+
+let touring=false;
+
+const tourBtn=
+document.getElementById("tourBtn");
 
 
-const chapters = [
+const tourPoints=[
 
     {
-
-        title:
-            "CHAPTER 01 — ORIGIN",
-
-        description:
-            "EVERY SYSTEM STARTS WITH A SINGLE IDEA."
-
+        pos:"0 2 14",
+        look:"0 2 0",
+        label:"SYSTEM ENTRY"
     },
 
     {
-
-        title:
-            "CHAPTER 02 — BUILD",
-
-        description:
-            "IDEAS BECOME SYSTEMS WHEN YOU BUILD THEM."
-
+        pos:"0 3 2",
+        look:"0 3 -7",
+        label:"CPU CORE"
     },
 
     {
-
-        title:
-            "CHAPTER 03 — INTELLIGENCE",
-
-        description:
-            "THE NEXT INTERFACE IS ONE THAT CAN THINK."
-
+        pos:"-9 3 -1",
+        look:"0 3 -4",
+        label:"MEMORY"
     },
 
     {
+        pos:"9 3 -1",
+        look:"0 3 -4",
+        label:"STORAGE"
+    },
 
-        title:
-            "CHAPTER 04 — FUTURE",
+    {
+        pos:"0 3 -11",
+        look:"0 2 -14",
+        label:"GPU"
+    },
 
-        description:
-            "THE FUTURE BELONGS TO THOSE WHO EXPERIMENT."
+    {
+        pos:"-9 4 -10",
+        look:"-11 4 -13",
+        label:"NETWORK"
+    },
 
+    {
+        pos:"9 4 -10",
+        look:"11 4 -13",
+        label:"AI ENGINE"
+    },
+
+    {
+        pos:"0 4 -17",
+        look:"0 4 -19",
+        label:"OPERATING SYSTEM"
     }
 
 ];
 
 
+tourBtn.addEventListener("click",()=>{
 
-/* ==========================================================
-   CAMERA MOVEMENT / CHAPTER DETECTION
-========================================================== */
+    if(touring) return;
 
-const camera =
-    document.getElementById(
-        "camera"
-    );
+    touring=true;
 
+    runTour(0);
 
-function updateChapter() {
-
-    const pos =
-        camera.object3D.position;
+});
 
 
-    let index = 0;
+function runTour(index){
 
+    if(index>=tourPoints.length){
 
-    if (pos.z < -3)
-        index = 1;
+        touring=false;
 
-
-    if (pos.z < -8)
-        index = 2;
-
-
-    if (pos.y > 5)
-        index = 3;
-
-
-    chapterTitle.textContent =
-        chapters[index].title;
-
-
-    chapterDescription.textContent =
-        chapters[index].description;
-
-}
-
-
-setInterval(
-    updateChapter,
-    500
-);
-
-
-
-/* ==========================================================
-   JOURNEY MODE
-========================================================== */
-
-let journeyRunning =
-    false;
-
-
-const journeyButton =
-    document.getElementById(
-        "journeyButton"
-    );
-
-
-journeyButton.addEventListener(
-    "click",
-    function () {
-
-        if (journeyRunning)
-            return;
-
-
-        journeyRunning =
-            true;
-
-
-        const journey = [
-
-            {
-                x: 0,
-                y: 2,
-                z: 10,
-                duration: 1500
-            },
-
-            {
-                x: 0,
-                y: 2,
-                z: 4,
-                duration: 1800
-            },
-
-            {
-                x: 0,
-                y: 2,
-                z: -3,
-                duration: 2200
-            },
-
-            {
-                x: 5,
-                y: 3,
-                z: -4,
-                duration: 2000
-            },
-
-            {
-                x: -5,
-                y: 3,
-                z: -4,
-                duration: 2000
-            },
-
-            {
-                x: 0,
-                y: 6,
-                z: -12,
-                duration: 2500
-            }
-
-        ];
-
-
-        runJourney(
-            journey,
-            0
-        );
-
-    }
-);
-
-
-
-/* ==========================================================
-   RUN JOURNEY
-========================================================== */
-
-function runJourney(
-    points,
-    index
-) {
-
-    if (
-        index >=
-        points.length
-    ) {
-
-        journeyRunning =
-            false;
+        tourBtn.textContent=
+        "REPLAY SYSTEM TOUR";
 
         return;
 
     }
 
+    const point=tourPoints[index];
 
-    const target =
-        points[index];
-
-
-    camera.setAttribute(
-        "animation__journey",
-        {
-
-            property:
-                "position",
-
-            to:
-                `${target.x}
-                 ${target.y}
-                 ${target.z}`,
-
-            dur:
-                target.duration,
-
-            easing:
-                "easeInOutCubic"
-
-        }
+    cameraRig.setAttribute(
+        "animation__move",
+        `
+        property:position;
+        to:${point.pos};
+        dur:2500;
+        easing:easeInOutCubic
+        `
     );
 
+    locationText.textContent=
+    "TOUR: "+point.label;
 
-    setTimeout(
-        function () {
+    setTimeout(()=>{
 
-            runJourney(
-                points,
-                index + 1
-            );
+        runTour(index+1);
 
-        },
-        target.duration + 500
-    );
+    },3300);
 
 }
 
 
+/* =====================================
+   ENTER SYSTEM
+===================================== */
 
-/* ==========================================================
-   PREVENT CONTEXT MENU
-========================================================== */
+const loading=
+document.getElementById("loading");
 
-document.addEventListener(
-    "contextmenu",
-    function (event) {
+document
+.getElementById("enterBtn")
+.addEventListener("click",()=>{
 
-        event.preventDefault();
+    loading.style.opacity="0";
+
+    setTimeout(()=>{
+
+        loading.style.display="none";
+
+    },1000);
+
+});
+
+
+/* =====================================
+   ESC CLOSE PANEL
+===================================== */
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.key==="Escape"){
+
+        panel.classList.remove("active");
 
     }
-);
+
+});
+
+
+/* =====================================
+   RANDOM DIGITAL GLITCH
+===================================== */
+
+setInterval(()=>{
+
+    const logo=
+    document.querySelector(".logo");
+
+    if(Math.random()>.8){
+
+        logo.style.transform=
+        `translateX(${Math.random()*4-2}px)`;
+
+        setTimeout(()=>{
+
+            logo.style.transform="";
+
+        },100);
+
+    }
+
+},1000);
 
 </script>
 
 </body>
-
 </html>
