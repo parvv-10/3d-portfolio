@@ -4,304 +4,451 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>INSIDE THE COMPUTER — 3D Experience</title>
+<title>INSIDE THE COMPUTER | 3D Digital Architecture</title>
 
 <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
 
 <style>
 
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 *{
     box-sizing:border-box;
-    margin:0;
-    padding:0;
 }
 
-body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#020409;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
     overflow:hidden;
+    background:#020407;
+    font-family:Arial,Helvetica,sans-serif;
     color:white;
 }
 
-/* =========================
-   LOADING SCREEN
-========================= */
+button{
+    font-family:inherit;
+}
 
-#loading{
+/* =========================================================
+   BOOT SCREEN
+========================================================= */
+
+#bootScreen{
     position:fixed;
     inset:0;
-    background:
-        radial-gradient(circle at center,#071927 0%,#020409 55%,#000 100%);
-    z-index:9999;
+    z-index:99999;
+
     display:flex;
     flex-direction:column;
-    align-items:center;
     justify-content:center;
+    align-items:center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #09232e 0%,
+            #020a10 35%,
+            #010204 75%,
+            #000 100%
+        );
+
     transition:opacity 1s ease;
 }
 
-.loading-title{
-    font-size:clamp(35px,7vw,85px);
-    letter-spacing:12px;
+.boot-small{
+    color:#6deeff;
+    font-size:11px;
+    letter-spacing:6px;
+    margin-bottom:20px;
+}
+
+.boot-title{
+    font-size:clamp(40px,8vw,100px);
     font-weight:900;
+    letter-spacing:12px;
     text-align:center;
+
+    color:#eaffff;
+
     text-shadow:
         0 0 10px #00eaff,
         0 0 30px #00eaff,
-        0 0 80px #006eff;
+        0 0 80px #007bff;
 }
 
-.loading-sub{
+.boot-subtitle{
     margin-top:15px;
-    color:#8aefff;
-    letter-spacing:5px;
-    font-size:13px;
+    color:#8da7ad;
+    letter-spacing:4px;
+    font-size:12px;
+    text-align:center;
 }
 
-.loader{
-    width:300px;
+.boot-progress{
+    margin-top:45px;
+    width:min(420px,75vw);
     height:3px;
-    background:#10232b;
-    margin-top:40px;
+    background:#10252c;
     overflow:hidden;
 }
 
-.loader-bar{
-    height:100%;
+.boot-progress-bar{
     width:0%;
+    height:100%;
     background:#00eaff;
     box-shadow:0 0 20px #00eaff;
-    animation:load 3s forwards;
+
+    animation:
+        bootProgress 3.5s
+        forwards;
 }
 
-@keyframes load{
-    to{width:100%}
+@keyframes bootProgress{
+    100%{
+        width:100%;
+    }
 }
 
-#enterBtn{
+#enterSystem{
     margin-top:35px;
-    padding:14px 35px;
-    background:transparent;
+
+    padding:13px 32px;
+
+    background:rgba(0,20,28,.7);
+
     border:1px solid #00eaff;
+
     color:#00eaff;
+
     letter-spacing:4px;
+    font-size:11px;
+
     cursor:pointer;
+
+    box-shadow:
+        0 0 10px rgba(0,234,255,.1);
+
     transition:.3s;
 }
 
-#enterBtn:hover{
+#enterSystem:hover{
+    color:#001014;
     background:#00eaff;
-    color:#001016;
-    box-shadow:0 0 30px #00eaff;
+
+    box-shadow:
+        0 0 15px #00eaff,
+        0 0 40px rgba(0,234,255,.5);
 }
 
-/* =========================
+/* =========================================================
    HUD
-========================= */
+========================================================= */
 
 #hud{
     position:fixed;
     inset:0;
+
+    z-index:500;
+
     pointer-events:none;
-    z-index:100;
 }
 
-.top-left{
+.hud-left{
     position:absolute;
     top:25px;
-    left:30px;
+    left:28px;
 }
 
-.logo{
-    font-size:19px;
+.hud-logo{
+    font-size:17px;
     font-weight:bold;
-    letter-spacing:5px;
+    letter-spacing:4px;
+
     color:#00eaff;
-    text-shadow:0 0 12px #00eaff;
+
+    text-shadow:
+        0 0 10px #00eaff;
 }
 
-.system{
-    font-size:10px;
-    color:#73ffbd;
-    letter-spacing:3px;
+.hud-system{
     margin-top:7px;
+
+    color:#73ffbd;
+
+    font-size:9px;
+    letter-spacing:3px;
 }
 
-.top-right{
+.hud-right{
     position:absolute;
     top:25px;
-    right:30px;
+    right:28px;
+
     text-align:right;
 }
 
-#location{
+#sector{
     color:#00eaff;
-    font-size:11px;
+    font-size:10px;
     letter-spacing:3px;
 }
 
-#status{
-    margin-top:8px;
+#systemStats{
+    margin-top:7px;
+
     color:#73ffbd;
-    font-size:10px;
+
+    font-size:9px;
+    letter-spacing:2px;
 }
 
 .crosshair{
     position:absolute;
-    left:50%;
+
     top:50%;
+    left:50%;
+
+    width:22px;
+    height:22px;
+
     transform:translate(-50%,-50%);
-    width:18px;
-    height:18px;
 }
 
-.crosshair:before,
-.crosshair:after{
+.crosshair::before,
+.crosshair::after{
     content:"";
+
     position:absolute;
+
     background:#00eaff;
+
     box-shadow:0 0 8px #00eaff;
 }
 
-.crosshair:before{
-    width:18px;
+.crosshair::before{
+    width:22px;
     height:1px;
-    top:9px;
+
+    left:0;
+    top:11px;
 }
 
-.crosshair:after{
+.crosshair::after{
     width:1px;
-    height:18px;
-    left:9px;
+    height:22px;
+
+    left:11px;
+    top:0;
 }
 
-.bottom{
+.hud-bottom{
     position:absolute;
-    bottom:25px;
-    left:30px;
-    font-size:10px;
-    color:#7c8b95;
+
+    bottom:23px;
+    left:28px;
+
+    color:#65777d;
+
+    font-size:9px;
     letter-spacing:2px;
 }
 
-#tourBtn{
+#tourButton{
     position:absolute;
-    bottom:25px;
-    right:30px;
+
+    bottom:20px;
+    right:28px;
+
     pointer-events:auto;
-    padding:12px 20px;
-    background:rgba(0,10,18,.8);
-    border:1px solid #00eaff;
+
+    background:rgba(1,10,16,.9);
+
     color:#00eaff;
+
+    border:1px solid #00eaff;
+
+    padding:11px 18px;
+
+    font-size:9px;
+    letter-spacing:3px;
+
     cursor:pointer;
-    letter-spacing:2px;
+
+    transition:.3s;
 }
 
-/* =========================
-   COMPONENT PANEL
-========================= */
+#tourButton:hover{
+    background:#00eaff;
+    color:#001015;
 
-#panel{
+    box-shadow:0 0 25px #00eaff;
+}
+
+/* =========================================================
+   COMPONENT INFORMATION PANEL
+========================================================= */
+
+#componentPanel{
     position:fixed;
+
+    z-index:1000;
+
+    right:30px;
     top:50%;
-    right:35px;
-    transform:translateY(-50%) translateX(120%);
-    width:330px;
+
+    width:360px;
     max-width:calc(100vw - 40px);
-    background:rgba(3,10,17,.94);
+
+    transform:
+        translateY(-50%)
+        translateX(120%);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(4,17,25,.97),
+            rgba(1,6,10,.97)
+        );
+
     border:1px solid #00eaff;
+
     box-shadow:
         0 0 30px rgba(0,234,255,.25),
-        inset 0 0 30px rgba(0,234,255,.04);
+        inset 0 0 35px rgba(0,234,255,.04);
+
     padding:25px;
-    z-index:300;
-    transition:.5s ease;
+
+    transition:.45s ease;
+
     pointer-events:auto;
 }
 
-#panel.active{
-    transform:translateY(-50%) translateX(0);
+#componentPanel.open{
+    transform:
+        translateY(-50%)
+        translateX(0);
 }
 
-.panel-label{
-    font-size:9px;
+.panel-category{
     color:#73ffbd;
+
+    font-size:9px;
     letter-spacing:4px;
 }
 
-#panel h2{
-    margin-top:10px;
+#componentTitle{
+    margin:10px 0 0;
+
     color:#00eaff;
-    font-size:30px;
+
+    font-size:27px;
+    letter-spacing:2px;
+}
+
+.panel-divider{
+    height:1px;
+
+    background:#16414a;
+
+    margin:18px 0;
+}
+
+#componentDescription{
+    color:#a8b9be;
+
+    font-size:12px;
+
+    line-height:1.7;
+}
+
+.spec-title{
+    margin-top:20px;
+
+    color:#657e85;
+
+    font-size:9px;
+
     letter-spacing:3px;
 }
 
-#panel p{
-    margin-top:15px;
-    color:#b5c4ca;
-    line-height:1.6;
-    font-size:13px;
-}
+#componentSpecs{
+    margin-top:10px;
 
-.tech{
     display:flex;
+
     flex-wrap:wrap;
+
     gap:7px;
-    margin-top:18px;
 }
 
-.tech span{
+.spec{
     padding:5px 8px;
-    border:1px solid #1d6874;
+
+    border:1px solid #15515d;
+
     color:#6eeeff;
+
     font-size:9px;
 }
 
-.close{
+#componentClose{
     position:absolute;
-    right:15px;
-    top:12px;
-    color:#fff;
+
+    right:14px;
+    top:10px;
+
+    border:none;
+    background:none;
+
+    color:#71868d;
+
+    font-size:23px;
+
     cursor:pointer;
-    font-size:20px;
 }
 
-.panel-line{
-    height:1px;
-    background:#12353e;
-    margin:20px 0;
+#componentClose:hover{
+    color:#fff;
 }
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
 @media(max-width:600px){
 
-    .top-left{
-        left:15px;
+    .hud-left{
+        left:14px;
         top:15px;
     }
 
-    .top-right{
-        right:15px;
+    .hud-right{
+        right:14px;
         top:15px;
     }
 
-    .bottom{
-        left:15px;
-        bottom:15px;
+    .hud-bottom{
+        left:14px;
+        bottom:14px;
+        font-size:7px;
     }
 
-    #tourBtn{
-        right:15px;
-        bottom:15px;
+    #tourButton{
+        right:14px;
+        bottom:13px;
+
         padding:9px 12px;
+
+        font-size:7px;
     }
 
-    #panel{
-        right:20px;
+    #componentPanel{
         left:20px;
+        right:20px;
+
         width:auto;
     }
 
@@ -312,62 +459,67 @@ body{
 
 <body>
 
-<!-- =========================
-     LOADING
-========================= -->
 
-<div id="loading">
+<!-- =========================================================
+     BOOT SCREEN
+========================================================= -->
 
-    <div class="loading-title">
+<div id="bootScreen">
+
+    <div class="boot-small">
+        SYSTEM INITIALIZATION
+    </div>
+
+    <div class="boot-title">
         INSIDE
     </div>
 
-    <div class="loading-title">
+    <div class="boot-title">
         THE COMPUTER
     </div>
 
-    <div class="loading-sub">
-        A 3D JOURNEY THROUGH DIGITAL ARCHITECTURE
+    <div class="boot-subtitle">
+        EXPLORE THE ARCHITECTURE BEHIND DIGITAL TECHNOLOGY
     </div>
 
-    <div class="loader">
-        <div class="loader-bar"></div>
+    <div class="boot-progress">
+        <div class="boot-progress-bar"></div>
     </div>
 
-    <button id="enterBtn">
-        ENTER SYSTEM
+    <button id="enterSystem">
+        ENTER COMPUTER
     </button>
 
 </div>
 
 
-<!-- =========================
+<!-- =========================================================
      HUD
-========================= -->
+========================================================= -->
 
 <div id="hud">
 
-    <div class="top-left">
+    <div class="hud-left">
 
-        <div class="logo">
-            COMPUTER // CORE
+        <div class="hud-logo">
+            INSIDE // COMPUTER
         </div>
 
-        <div class="system">
+        <div class="hud-system">
             ● SYSTEM ONLINE
         </div>
 
     </div>
 
 
-    <div class="top-right">
+    <div class="hud-right">
 
-        <div id="location">
+        <div id="sector">
             SECTOR: ENTRY
         </div>
 
-        <div id="status">
-            CPU LOAD 27% · MEMORY 64%
+        <div id="systemStats">
+            CPU 24% · RAM 51% · TEMP 38°C
         </div>
 
     </div>
@@ -376,149 +528,164 @@ body{
     <div class="crosshair"></div>
 
 
-    <div class="bottom">
+    <div class="hud-bottom">
         WASD / ARROWS — MOVE &nbsp; • &nbsp;
         MOUSE — LOOK &nbsp; • &nbsp;
-        CLICK — INTERACT
+        CLICK — INSPECT
     </div>
 
 
-    <button id="tourBtn">
-        START SYSTEM TOUR
+    <button id="tourButton">
+        SYSTEM TOUR
     </button>
 
 </div>
 
 
-<!-- =========================
-     INFORMATION PANEL
-========================= -->
+<!-- =========================================================
+     COMPONENT PANEL
+========================================================= -->
 
-<div id="panel">
+<div id="componentPanel">
 
-    <div class="close" id="closePanel">
+    <button id="componentClose">
         ×
+    </button>
+
+    <div class="panel-category">
+        HARDWARE COMPONENT
     </div>
 
-    <div class="panel-label">
-        COMPONENT DETECTED
-    </div>
-
-    <h2 id="panelTitle">
+    <h2 id="componentTitle">
         CPU
     </h2>
 
-    <div class="panel-line"></div>
+    <div class="panel-divider"></div>
 
-    <p id="panelDescription">
-        Central Processing Unit.
-    </p>
+    <div id="componentDescription">
+        Component description.
+    </div>
 
-    <div class="tech" id="panelTech"></div>
+    <div class="spec-title">
+        CORE TECHNOLOGIES
+    </div>
+
+    <div id="componentSpecs"></div>
 
 </div>
 
 
-<!-- =========================
-     3D WORLD
-========================= -->
+<!-- =========================================================
+     A-FRAME
+========================================================= -->
 
 <a-scene
-    background="color:#01040a"
+    background="color:#010409"
+
     renderer="
         antialias:true;
         colorManagement:true;
         physicallyCorrectLights:true;
     "
+
     fog="
         type:exponential;
-        color:#020812;
-        density:0.012;
+        color:#020810;
+        density:.010;
     "
 >
 
 
-<!-- =========================
-     ASSETS
-========================= -->
-
-<a-assets>
-
-    <a-mixin
-        id="glowMaterial"
-        material="
-            color:#00eaff;
-            emissive:#00eaff;
-            emissiveIntensity:2;
-            metalness:.7;
-            roughness:.2;
-        ">
-    </a-mixin>
-
-</a-assets>
-
-
-<!-- =========================
+<!-- =========================================================
      LIGHTING
-========================= -->
-
-<a-entity light="
-    type:ambient;
-    color:#17404d;
-    intensity:.8">
-</a-entity>
+========================================================= -->
 
 <a-entity
-    position="0 8 0"
+    light="
+        type:ambient;
+        color:#18343e;
+        intensity:.75;
+    ">
+</a-entity>
+
+
+<a-entity
+    position="0 10 0"
     light="
         type:point;
         color:#00eaff;
         intensity:8;
-        distance:35">
+        distance:40;
+    ">
 </a-entity>
 
+
 <a-entity
-    position="0 3 -15"
+    position="-15 6 -10"
     light="
         type:point;
         color:#0066ff;
         intensity:5;
-        distance:30">
+        distance:30;
+    ">
 </a-entity>
 
+
 <a-entity
-    position="12 3 0"
+    position="15 5 -10"
     light="
         type:point;
         color:#ff00d4;
-        intensity:4;
-        distance:25">
+        intensity:5;
+        distance:30;
+    ">
 </a-entity>
 
 
-<!-- =========================
+<a-entity
+    position="0 3 -20"
+    light="
+        type:point;
+        color:#73ffbd;
+        intensity:3;
+        distance:25;
+    ">
+</a-entity>
+
+
+<!-- =========================================================
      CAMERA
-========================= -->
+========================================================= -->
 
 <a-entity
-    id="cameraRig"
-    position="0 2 16">
+    id="player"
+    position="0 2 17"
+>
 
     <a-camera
         id="camera"
+
         wasd-controls="
             acceleration:35;
             fly:true;
         "
+
         look-controls="
             pointerLockEnabled:false;
         "
-        position="0 0 0">
+
+        position="0 0 0"
+    >
 
         <a-cursor
             color="#00eaff"
+
+            raycaster="
+                objects:.interactive;
+            "
+
             fuse="false"
-            raycaster="objects:.interactive">
+        >
         </a-cursor>
 
     </a-camera>
@@ -526,441 +693,1524 @@ body{
 </a-entity>
 
 
-<!-- =========================
-     FLOOR
-========================= -->
+<!-- =========================================================
+     COMPUTER CASE
+========================================================= -->
 
-<a-plane
-    rotation="-90 0 0"
-    width="80"
-    height="80"
-    material="
-        color:#02080e;
-        roughness:.9;
-        metalness:.3;
-    ">
-</a-plane>
-
-
-<!-- FLOOR GRID -->
-
-<a-entity id="grid"></a-entity>
-
-
-<!-- =========================
-     WALLS
-========================= -->
+<!-- LEFT WALL -->
 
 <a-box
-    position="-22 8 0"
+    position="-23 7 0"
     width="1"
-    height="16"
-    depth="45"
+    height="15"
+    depth="48"
+
     material="
-        color:#020b12;
-        metalness:.8;
-        roughness:.3;
-    ">
-</a-box>
-
-<a-box
-    position="22 8 0"
-    width="1"
-    height="16"
-    depth="45"
-    material="
-        color:#020b12;
-        metalness:.8;
-        roughness:.3;
-    ">
-</a-box>
-
-<a-box
-    position="0 8 -22"
-    width="45"
-    height="16"
-    depth="1"
-    material="
-        color:#020b12;
-        metalness:.8;
-        roughness:.3;
-    ">
-</a-box>
-
-
-<!-- =========================
-     ENTRANCE
-========================= -->
-
-<a-text
-    value="WELCOME TO THE COMPUTER"
-    align="center"
-    position="0 5 12"
-    rotation="0 180 0"
-    width="10"
-    color="#00eaff"
-    side="double">
-</a-text>
-
-<a-ring
-    position="0 0.03 12"
-    rotation="-90 0 0"
-    radius-inner="3"
-    radius-outer="3.1"
-    material="
-        color:#00eaff;
-        emissive:#00eaff;
-        emissiveIntensity:4;
-    "
-    animation="
-        property:rotation;
-        to:-90 360 0;
-        loop:true;
-        dur:10000;
-        easing:linear;
-    ">
-</a-ring>
-
-
-<!-- =========================
-     MOTHERBOARD PLATFORM
-========================= -->
-
-<a-box
-    position="0 .3 -4"
-    width="30"
-    height=".5"
-    depth="25"
-    material="
-        color:#03151a;
+        color:#020a10;
         metalness:.9;
         roughness:.25;
-    ">
+    "
+>
 </a-box>
 
 
-<!-- =========================
-     CIRCUIT TRACES
-========================= -->
+<!-- RIGHT WALL -->
 
-<a-entity id="circuits"></a-entity>
+<a-box
+    position="23 7 0"
+    width="1"
+    height="15"
+    depth="48"
+
+    material="
+        color:#020a10;
+        metalness:.9;
+        roughness:.25;
+    "
+>
+</a-box>
 
 
-<!-- =========================
-     CPU CORE
-========================= -->
+<!-- BACK WALL -->
+
+<a-box
+    position="0 7 -24"
+    width="46"
+    height="15"
+    depth="1"
+
+    material="
+        color:#020a10;
+        metalness:.9;
+        roughness:.25;
+    "
+>
+</a-box>
+
+
+<!-- =========================================================
+     FLOOR / MOTHERBOARD
+========================================================= -->
+
+<a-box
+    position="0 .15 -4"
+
+    width="42"
+    height=".3"
+    depth="40"
+
+    material="
+        color:#031218;
+        metalness:.85;
+        roughness:.3;
+    "
+>
+</a-box>
+
+
+<!-- =========================================================
+     FLOOR GRID
+========================================================= -->
+
+<a-entity id="floorGrid"></a-entity>
+
+
+<!-- =========================================================
+     MOTHERBOARD TRACES
+========================================================= -->
+
+<a-entity id="traces"></a-entity>
+
+
+<!-- =========================================================
+     MAINBOARD
+========================================================= -->
+
+<a-box
+    position="0 .55 -7"
+
+    width="29"
+    height=".22"
+    depth="24"
+
+    material="
+        color:#052018;
+        emissive:#001d16;
+        emissiveIntensity:1;
+        metalness:.8;
+        roughness:.3;
+    "
+>
+</a-box>
+
+
+<!-- =========================================================
+     CPU
+========================================================= -->
 
 <a-entity
-    id="cpu"
+    id="CPU"
     class="interactive"
-    position="0 3 -7"
-    computer-component="
-        title:CPU — CENTRAL PROCESSING UNIT;
-        description:The computational brain of the system. The CPU executes instructions, performs calculations and coordinates operations between hardware and software.;
-        tech:ALU|Control Unit|Registers|Cache|Instruction Cycle;
-    ">
+
+    component-info="
+        name:CPU — CENTRAL PROCESSING UNIT;
+        description:The CPU is the primary general-purpose processor. It executes instructions, performs calculations, controls operations and coordinates the rest of the computer system.;
+        specs:ALU|Control Unit|Registers|L1/L2/L3 Cache|Instruction Cycle|Clock Speed;
+    "
+
+    position="0 3.2 -7"
+>
+
+
+    <!-- CPU BODY -->
 
     <a-box
-        width="4"
-        height="2"
-        depth="4"
+        width="4.5"
+        height="1.8"
+        depth="4.5"
+
         material="
-            color:#081a22;
-            emissive:#002f3b;
-            emissiveIntensity:1;
+            color:#081820;
+            emissive:#00313b;
+            emissiveIntensity:1.5;
             metalness:.9;
-            roughness:.2;
-        ">
+            roughness:.18;
+        "
+    >
     </a-box>
 
+
+    <!-- CPU TOP -->
+
     <a-box
-        width="2.7"
-        height=".15"
-        depth="2.7"
-        position="0 1.08 0"
+        width="3.6"
+        height=".12"
+        depth="3.6"
+
+        position="0 .96 0"
+
         material="
             color:#00eaff;
             emissive:#00eaff;
             emissiveIntensity:3;
         "
+
         animation="
             property:material.emissiveIntensity;
-            from:.5;
+            from:1;
             to:4;
             dir:alternate;
             loop:true;
             dur:900;
-        ">
+        "
+    >
     </a-box>
+
 
     <a-text
         value="CPU"
         align="center"
-        position="0 1.3 0"
-        rotation="0 0 0"
+
+        position="0 1.25 0"
+
         width="5"
-        color="#ffffff">
+
+        color="#ffffff"
+    >
     </a-text>
+
 
 </a-entity>
 
 
-<!-- CPU RINGS -->
+<!-- CPU SOCKET -->
+
+<a-box
+    position="0 1.1 -7"
+
+    width="6"
+    height=".1"
+    depth="6"
+
+    material="
+        color:#001b21;
+        emissive:#003642;
+        emissiveIntensity:1;
+    "
+>
+</a-box>
+
+
+<!-- CPU ORBIT -->
 
 <a-torus
-    position="0 3 -7"
+    position="0 3.2 -7"
+
     rotation="90 0 0"
-    radius="3"
+
+    radius="3.5"
     radius-tubular=".025"
+
     material="
         color:#00eaff;
         emissive:#00eaff;
         emissiveIntensity:3;
     "
+
     animation="
         property:rotation;
         to:90 360 0;
         loop:true;
         dur:8000;
         easing:linear;
-    ">
-</a-torus>
-
-
-<a-torus
-    position="0 3 -7"
-    rotation="90 0 0"
-    radius="3.6"
-    radius-tubular=".018"
-    material="
-        color:#ff00d4;
-        emissive:#ff00d4;
-        emissiveIntensity:2;
     "
-    animation="
-        property:rotation;
-        to:90 -360 0;
-        loop:true;
-        dur:12000;
-        easing:linear;
-    ">
+>
 </a-torus>
 
 
-<!-- =========================
-     RAM
-========================= -->
+<!-- =========================================================
+     CPU COOLER
+========================================================= -->
 
 <a-entity
-    id="ram"
+    id="CPU_COOLER"
+
     class="interactive"
-    position="-9 2.5 -4"
-    computer-component="
-        title:RAM — RANDOM ACCESS MEMORY;
-        description:High-speed temporary memory used by the computer to store active programs and data so the processor can access them quickly.;
-        tech:Volatile Memory|Memory Cells|DDR|Bandwidth|Latency;
-    ">
+
+    component-info="
+        name:CPU COOLER;
+        description:The CPU cooler removes heat generated by the processor. A cooler normally combines a heatsink with airflow to keep the CPU within a safe operating temperature.;
+        specs:Heatsink|Fan|Thermal Transfer|Airflow|Temperature Control;
+    "
+
+    position="0 6 -7"
+>
+
+
+    <a-cylinder
+        radius="2.7"
+        height=".6"
+
+        material="
+            color:#111820;
+            metalness:.9;
+            roughness:.2;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-cylinder
+        radius="2.2"
+        height=".65"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:1.5;
+        "
+
+        animation="
+            property:rotation;
+            to:0 360 0;
+            loop:true;
+            dur:700;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-torus
+        radius="2.8"
+        radius-tubular=".08"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:2;
+        "
+    >
+    </a-torus>
+
+
+</a-entity>
+
+
+<!-- =========================================================
+     RAM
+========================================================= -->
+
+<a-entity
+    id="RAM"
+
+    class="interactive"
+
+    component-info="
+        name:RAM — RANDOM ACCESS MEMORY;
+        description:RAM provides fast temporary storage for active programs and data. It is volatile memory, meaning its contents disappear when the system loses power.;
+        specs:DDR|Memory Cells|Bandwidth|Latency|Volatile Memory|Dual Channel;
+    "
+>
+
+
+    <!-- RAM 1 -->
 
     <a-box
-        width="1"
-        height="5"
-        depth=".6"
+        position="-7 2.4 -7"
+
+        width=".65"
+        height="4.8"
+        depth=".65"
+
         material="
-            color:#071b14;
-            emissive:#003d25;
+            color:#06301e;
+            emissive:#00482d;
             emissiveIntensity:1;
             metalness:.7;
-        ">
+        "
+    >
     </a-box>
 
+
+    <!-- RAM 2 -->
+
     <a-box
-        width=".75"
+        position="-8 2.4 -7"
+
+        width=".65"
+        height="4.8"
+        depth=".65"
+
+        material="
+            color:#06301e;
+            emissive:#00482d;
+            emissiveIntensity:1;
+            metalness:.7;
+        "
+    >
+    </a-box>
+
+
+    <!-- RAM LIGHTS -->
+
+    <a-box
+        position="-7 2.4 -6.62"
+
+        width=".35"
         height="4"
-        depth=".08"
-        position="0 0 .35"
+        depth=".04"
+
         material="
             color:#73ffbd;
             emissive:#73ffbd;
-            emissiveIntensity:2;
-        ">
+            emissiveIntensity:3;
+        "
+    >
     </a-box>
+
+
+    <a-box
+        position="-8 2.4 -6.62"
+
+        width=".35"
+        height="4"
+        depth=".04"
+
+        material="
+            color:#73ffbd;
+            emissive:#73ffbd;
+            emissiveIntensity:3;
+        "
+    >
+    </a-box>
+
 
     <a-text
         value="RAM"
         align="center"
-        position="0 0 .5"
-        rotation="0 0 0"
+
+        position="-7.5 5.1 -6.5"
+
         width="3"
-        color="#73ffbd">
+
+        color="#73ffbd"
+    >
     </a-text>
 
 </a-entity>
 
 
-<!-- RAM ARRAY -->
+<!-- =========================================================
+     GPU
+========================================================= -->
 
 <a-entity
-    position="-9 2.5 -4"
-    animation="
-        property:rotation;
-        to:0 360 0;
-        loop:true;
-        dur:20000;
-        easing:linear;
-    ">
+    id="GPU"
 
-    <a-ring
-        rotation="90 0 0"
-        radius-inner="3"
-        radius-outer="3.04"
+    class="interactive"
+
+    component-info="
+        name:GPU — GRAPHICS PROCESSING UNIT;
+        description:The GPU is designed for highly parallel computation. It powers graphics rendering and is extremely important for machine learning and artificial intelligence workloads.;
+        specs:CUDA|Parallel Computing|Shaders|Tensor Cores|Rendering|AI;
+    "
+
+    position="0 2 -12"
+>
+
+
+    <!-- GPU BODY -->
+
+    <a-box
+        width="10"
+        height="2.2"
+        depth="3.2"
+
         material="
-            color:#73ffbd;
-            emissive:#73ffbd;
+            color:#10150a;
+            emissive:#1d2f00;
+            emissiveIntensity:1;
+            metalness:.85;
+            roughness:.25;
+        "
+    >
+    </a-box>
+
+
+    <!-- GPU FANS -->
+
+    <a-cylinder
+        radius="1.15"
+        height=".35"
+
+        position="-2.5 0 1.7"
+
+        rotation="90 0 0"
+
+        material="
+            color:#b6ff00;
+            emissive:#b6ff00;
             emissiveIntensity:2;
-        ">
-    </a-ring>
+        "
+
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:700;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-cylinder
+        radius="1.15"
+        height=".35"
+
+        position="2.5 0 1.7"
+
+        rotation="90 0 0"
+
+        material="
+            color:#b6ff00;
+            emissive:#b6ff00;
+            emissiveIntensity:2;
+        "
+
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:700;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-text
+        value="GPU"
+        align="center"
+
+        position="0 1.45 1.7"
+
+        width="5"
+
+        color="#b6ff00"
+    >
+    </a-text>
 
 </a-entity>
 
 
-<!-- =========================
-     STORAGE
-========================= -->
+<!-- =========================================================
+     VRAM
+========================================================= -->
 
 <a-entity
-    id="storage"
+    id="VRAM"
+
     class="interactive"
-    position="9 2.3 -4"
-    computer-component="
-        title:STORAGE — MEMORY VAULT;
-        description:Permanent digital storage where files, applications and operating system data survive after the computer is powered down.;
-        tech:SSD|NAND Flash|File System|Blocks|Persistence;
-    ">
 
-    <a-cylinder
-        radius="2"
-        height="1"
+    component-info="
+        name:VRAM — VIDEO MEMORY;
+        description:VRAM is high-speed memory used by the GPU to store textures, frames, models and other data needed for graphics and parallel workloads.;
+        specs:GDDR6|Bandwidth|Frame Buffer|Textures|GPU Memory;
+    "
+
+    position="0 1.5 -10.2"
+>
+
+
+    <a-box
+        width="4"
+        height=".5"
+        depth="1.5"
+
         material="
-            color:#161020;
-            emissive:#290047;
+            color:#301600;
+            emissive:#6b2e00;
             emissiveIntensity:1;
-            metalness:.9;
-        ">
-    </a-cylinder>
+        "
+    >
+    </a-box>
 
-    <a-cylinder
-        radius="1.5"
-        height="1.05"
+
+    <a-text
+        value="VRAM"
+        align="center"
+
+        position="0 .4 .8"
+
+        width="3"
+
+        color="#ff9d00"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     SSD
+========================================================= -->
+
+<a-entity
+    id="SSD"
+
+    class="interactive"
+
+    component-info="
+        name:SSD — SOLID STATE DRIVE;
+        description:An SSD stores digital information using flash memory. It provides fast access to operating systems, applications and files without moving mechanical parts.;
+        specs:NAND Flash|Controller|NVMe|PCIe|Read/Write;
+    "
+
+    position="9 2 -6"
+>
+
+
+    <a-box
+        width="4"
+        height=".5"
+        depth="1.6"
+
+        material="
+            color:#17052a;
+            emissive:#470080;
+            emissiveIntensity:1.5;
+            metalness:.7;
+        "
+    >
+    </a-box>
+
+
+    <a-box
+        width="3.4"
+        height=".1"
+        depth=".9"
+
+        position="0 .32 0"
+
         material="
             color:#ff00d4;
             emissive:#ff00d4;
-            emissiveIntensity:2;
-        ">
-    </a-cylinder>
-
-    <a-text
-        value="SSD"
-        align="center"
-        position="0 0 1.6"
-        rotation="0 0 0"
-        width="3"
-        color="#ffffff">
-    </a-text>
-
-</a-entity>
-
-
-<!-- =========================
-     GPU
-========================= -->
-
-<a-entity
-    id="gpu"
-    class="interactive"
-    position="0 2 -14"
-    computer-component="
-        title:GPU — GRAPHICS PROCESSING UNIT;
-        description:A massively parallel processor designed to perform thousands of operations simultaneously. Modern GPUs are essential for graphics, machine learning and AI.;
-        tech:Parallel Computing|CUDA|Tensor Cores|Rendering|AI;
-    ">
-
-    <a-box
-        width="8"
-        height="1.8"
-        depth="3"
-        material="
-            color:#10130a;
-            emissive:#243500;
-            emissiveIntensity:1;
-            metalness:.8;
-        ">
+            emissiveIntensity:3;
+        "
+    >
     </a-box>
 
-    <a-cylinder
-        radius="1.1"
-        height=".5"
-        rotation="90 0 0"
-        position="-2 0 1.6"
-        material="
-            color:#b6ff00;
-            emissive:#b6ff00;
-            emissiveIntensity:2;
-        "
-        animation="
-            property:rotation;
-            to:90 360 0;
-            loop:true;
-            dur:800;
-            easing:linear;
-        ">
-    </a-cylinder>
-
-    <a-cylinder
-        radius="1.1"
-        height=".5"
-        rotation="90 0 0"
-        position="2 0 1.6"
-        material="
-            color:#b6ff00;
-            emissive:#b6ff00;
-            emissiveIntensity:2;
-        "
-        animation="
-            property:rotation;
-            to:90 360 0;
-            loop:true;
-            dur:800;
-            easing:linear;
-        ">
-    </a-cylinder>
 
     <a-text
-        value="GPU / AI ENGINE"
+        value="NVMe SSD"
         align="center"
-        position="0 1.3 1.6"
-        width="6"
-        color="#b6ff00">
+
+        position="0 .7 .8"
+
+        width="3"
+
+        color="#ff00d4"
+    >
     </a-text>
 
 </a-entity>
 
 
-<!-- =========================
-     NETWORK CORE
-========================= -->
+<!-- =========================================================
+     HDD
+========================================================= -->
 
 <a-entity
-    id="network"
+    id="HDD"
+
     class="interactive"
-    position="-11 4 -13"
-    computer-component="
-        title:NETWORK — DIGITAL NERVOUS SYSTEM;
-        description:Networks allow computers and devices to exchange information. Data travels through packets across interconnected systems.;
-        tech:TCP/IP|Packets|Routing|DNS|Internet;
-    ">
+
+    component-info="
+        name:HDD — HARD DISK DRIVE;
+        description:A traditional storage device that stores information magnetically on rotating platters. It offers high capacity at relatively low cost.;
+        specs:Platters|Spindle|Actuator|Magnetic Storage|SATA;
+    "
+
+    position="10 1.4 -10"
+>
+
+
+    <a-cylinder
+        radius="2"
+        height=".7"
+
+        material="
+            color:#11161a;
+            metalness:.8;
+            roughness:.3;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-cylinder
+        radius="1.45"
+        height=".72"
+
+        material="
+            color:#0a0d10;
+            metalness:.9;
+            roughness:.15;
+        "
+
+        animation="
+            property:rotation;
+            to:0 360 0;
+            loop:true;
+            dur:1200;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-text
+        value="HDD"
+        align="center"
+
+        position="0 .7 1.7"
+
+        width="3"
+
+        color="#ffffff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     PSU
+========================================================= -->
+
+<a-entity
+    id="PSU"
+
+    class="interactive"
+
+    component-info="
+        name:PSU — POWER SUPPLY UNIT;
+        description:The PSU converts electrical power from an external source into regulated voltages required by the motherboard, CPU, GPU, storage and other components.;
+        specs:AC/DC Conversion|12V Rail|Efficiency|Modular Cables|Power Delivery;
+    "
+
+    position="-13 2 -6"
+>
+
+
+    <a-box
+        width="5"
+        height="3"
+        depth="5"
+
+        material="
+            color:#111315;
+            metalness:.85;
+            roughness:.35;
+        "
+    >
+    </a-box>
+
+
+    <a-cylinder
+        radius="1.3"
+        height=".3"
+
+        position="0 0 2.55"
+
+        rotation="90 0 0"
+
+        material="
+            color:#ff5e00;
+            emissive:#ff5e00;
+            emissiveIntensity:2;
+        "
+
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:800;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-text
+        value="PSU"
+        align="center"
+
+        position="0 2 2.6"
+
+        width="4"
+
+        color="#ff7b00"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     CMOS BATTERY
+========================================================= -->
+
+<a-entity
+    id="CMOS"
+
+    class="interactive"
+
+    component-info="
+        name:CMOS BATTERY;
+        description:The CMOS battery provides backup power for firmware settings and the real-time clock when the computer is turned off.;
+        specs:RTC|BIOS Settings|Backup Power|CR2032;
+    "
+
+    position="-8 1 -10"
+>
+
+
+    <a-cylinder
+        radius=".8"
+        height=".3"
+
+        rotation="90 0 0"
+
+        material="
+            color:#d7d7d7;
+            metalness:.8;
+            roughness:.25;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-text
+        value="CMOS"
+        align="center"
+
+        position="0 .7 .5"
+
+        width="2.5"
+
+        color="#ffffff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     CHIPSET
+========================================================= -->
+
+<a-entity
+    id="CHIPSET"
+
+    class="interactive"
+
+    component-info="
+        name:CHIPSET;
+        description:The chipset coordinates communication between the processor and other parts of the motherboard, including storage, USB and expansion interfaces.;
+        specs:I/O Control|PCIe|USB|Storage|Motherboard Communication;
+    "
+
+    position="-5 1 -11"
+>
+
+
+    <a-box
+        width="2"
+        height=".6"
+        depth="2"
+
+        material="
+            color:#09213a;
+            emissive:#00346b;
+            emissiveIntensity:1.5;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="CHIPSET"
+        align="center"
+
+        position="0 .7 1.1"
+
+        width="2.5"
+
+        color="#4e9cff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     PCIe SLOTS
+========================================================= -->
+
+<a-entity
+    id="PCIE"
+
+    class="interactive"
+
+    component-info="
+        name:PCIe EXPANSION SLOTS;
+        description:PCI Express provides high-speed communication pathways for expansion devices such as graphics cards, capture cards, network adapters and other hardware.;
+        specs:PCIe x1|PCIe x4|PCIe x8|PCIe x16|Expansion Bus;
+    "
+>
+
+
+    <a-box
+        position="5 1.05 -9"
+
+        width="9"
+        height=".15"
+        depth=".35"
+
+        material="
+            color:#28220a;
+            emissive:#806600;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-box
+        position="5 1.15 -10"
+
+        width="6"
+        height=".15"
+        depth=".35"
+
+        material="
+            color:#28220a;
+            emissive:#806600;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="PCIe"
+        align="center"
+
+        position="9 1.5 -9"
+
+        width="3"
+
+        color="#ffd000"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     M.2 SLOT
+========================================================= -->
+
+<a-entity
+    id="M2"
+
+    class="interactive"
+
+    component-info="
+        name:M.2 SLOT;
+        description:An M.2 interface provides a compact connection for modern storage devices and other expansion modules. NVMe SSDs commonly use this interface.;
+        specs:M.2|NVMe|PCIe|Compact Storage;
+    "
+
+    position="5 1.1 -6"
+>
+
+
+    <a-box
+        width="5"
+        height=".08"
+        depth=".8"
+
+        material="
+            color:#48102f;
+            emissive:#a50068;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="M.2"
+        align="center"
+
+        position="0 .6 .6"
+
+        width="2"
+
+        color="#ff4fbe"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     SATA PORTS
+========================================================= -->
+
+<a-entity
+    id="SATA"
+
+    class="interactive"
+
+    component-info="
+        name:SATA PORTS;
+        description:SATA interfaces connect compatible storage devices such as hard disk drives and SATA SSDs to the motherboard.;
+        specs:SATA III|6 Gb/s|Data Cable|Storage Interface;
+    "
+>
+
+
+    <a-box
+        position="11 1.1 -7"
+
+        width=".8"
+        height=".3"
+        depth=".5"
+
+        material="
+            color:#ffb000;
+            emissive:#ffb000;
+            emissiveIntensity:2;
+        "
+    >
+    </a-box>
+
+
+    <a-box
+        position="11 1.1 -7.8"
+
+        width=".8"
+        height=".3"
+        depth=".5"
+
+        material="
+            color:#ffb000;
+            emissive:#ffb000;
+            emissiveIntensity:2;
+        "
+    >
+    </a-box>
+
+
+    <a-box
+        position="11 1.1 -8.6"
+
+        width=".8"
+        height=".3"
+        depth=".5"
+
+        material="
+            color:#ffb000;
+            emissive:#ffb000;
+            emissiveIntensity:2;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="SATA"
+        align="center"
+
+        position="11.5 1.6 -8"
+
+        width="2.5"
+
+        color="#ffb000"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     BIOS / UEFI CHIP
+========================================================= -->
+
+<a-entity
+    id="BIOS"
+
+    class="interactive"
+
+    component-info="
+        name:BIOS / UEFI CHIP;
+        description:Firmware stored on the motherboard that initializes hardware during startup and helps begin the operating-system boot process.;
+        specs:Firmware|POST|Bootloader|UEFI|Hardware Initialization;
+    "
+
+    position="-10 1.1 -9"
+>
+
+
+    <a-box
+        width="1.8"
+        height=".5"
+        depth="1.8"
+
+        material="
+            color:#17220b;
+            emissive:#415d00;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="UEFI"
+        align="center"
+
+        position="0 .7 1"
+
+        width="2"
+
+        color="#b6ff00"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     AUDIO CHIP
+========================================================= -->
+
+<a-entity
+    id="AUDIO"
+
+    class="interactive"
+
+    component-info="
+        name:AUDIO CHIP;
+        description:The audio subsystem processes digital sound and provides interfaces for speakers, headphones, microphones and other audio devices.;
+        specs:DAC|ADC|Audio Codec|Microphone|Output;
+    "
+
+    position="-12 1.1 -11"
+>
+
+
+    <a-box
+        width="2"
+        height=".5"
+        depth="1.5"
+
+        material="
+            color:#24132c;
+            emissive:#4a0060;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="AUDIO"
+        align="center"
+
+        position="0 .7 .9"
+
+        width="2.5"
+
+        color="#e56aff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     NETWORK CHIP
+========================================================= -->
+
+<a-entity
+    id="LAN"
+
+    class="interactive"
+
+    component-info="
+        name:NETWORK CONTROLLER;
+        description:The network controller manages wired network communication between the computer and other devices using Ethernet and network protocols.;
+        specs:Ethernet|TCP/IP|MAC Address|Packets|Network Interface;
+    "
+
+    position="13 2 -15"
+>
+
+
+    <a-box
+        width="3"
+        height="2"
+        depth="2"
+
+        material="
+            color:#001c38;
+            emissive:#003e78;
+            emissiveIntensity:1.5;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="LAN"
+        align="center"
+
+        position="0 1.3 1.1"
+
+        width="3"
+
+        color="#48aaff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     WIFI ADAPTER
+========================================================= -->
+
+<a-entity
+    id="WIFI"
+
+    class="interactive"
+
+    component-info="
+        name:WI-FI ADAPTER;
+        description:The wireless adapter enables the computer to communicate over wireless networks using radio signals and wireless networking protocols.;
+        specs:Wi-Fi|Radio|Antennas|Wireless Networking|802.11;
+    "
+
+    position="-13 3 -15"
+>
+
+
+    <a-box
+        width="3"
+        height="1.5"
+        depth="2"
+
+        material="
+            color:#001f2c;
+            emissive:#004b5e;
+            emissiveIntensity:1.5;
+        "
+    >
+    </a-box>
+
+
+    <!-- ANTENNAS -->
+
+    <a-cylinder
+        radius=".12"
+        height="4"
+
+        position="-1.2 2 0"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:2;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-cylinder
+        radius=".12"
+        height="4"
+
+        position="1.2 2 0"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:2;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-text
+        value="WI-FI"
+        align="center"
+
+        position="0 1 1.1"
+
+        width="3"
+
+        color="#00eaff"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     USB CONTROLLER
+========================================================= -->
+
+<a-entity
+    id="USB"
+
+    class="interactive"
+
+    component-info="
+        name:USB CONTROLLER;
+        description:USB provides a universal interface for connecting peripherals and transferring data and power between devices.;
+        specs:USB 2.0|USB 3.x|Data Transfer|Power Delivery|Peripherals;
+    "
+
+    position="15 2 -5"
+>
+
+
+    <a-box
+        width="3"
+        height="2"
+        depth="2"
+
+        material="
+            color:#18240b;
+            emissive:#3d6100;
+            emissiveIntensity:1;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="USB"
+        align="center"
+
+        position="0 1.3 1.1"
+
+        width="3"
+
+        color="#b6ff00"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     COOLING FAN
+========================================================= -->
+
+<a-entity
+    id="CASE_FAN"
+
+    class="interactive"
+
+    component-info="
+        name:CASE COOLING FAN;
+        description:Case fans move air through the computer enclosure to remove heat from the CPU, GPU, motherboard and other components.;
+        specs:Airflow|RPM|Intake|Exhaust|Cooling;
+    "
+
+    position="18 6 -5"
+>
+
+
+    <a-cylinder
+        radius="3"
+        height=".5"
+
+        rotation="90 0 0"
+
+        material="
+            color:#09141a;
+            metalness:.8;
+            roughness:.2;
+        "
+    >
+    </a-cylinder>
+
+
+    <a-torus
+        radius="2.7"
+        radius-tubular=".15"
+
+        rotation="90 0 0"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:3;
+        "
+    >
+    </a-torus>
+
+
+    <a-cylinder
+        radius="1"
+        height=".6"
+
+        rotation="90 0 0"
+
+        material="
+            color:#00eaff;
+            emissive:#00eaff;
+            emissiveIntensity:2;
+        "
+
+        animation="
+            property:rotation;
+            to:90 360 0;
+            loop:true;
+            dur:900;
+            easing:linear;
+        "
+    >
+    </a-cylinder>
+
+</a-entity>
+
+
+<!-- =========================================================
+     HEATSINK
+========================================================= -->
+
+<a-entity
+    id="HEATSINK"
+
+    class="interactive"
+
+    component-info="
+        name:HEATSINK;
+        description:A heatsink transfers heat away from a component into metal fins where airflow can dissipate it.;
+        specs:Thermal Conductivity|Metal Fins|Heat Dissipation|Thermal Interface;
+    "
+
+    position="-15 4 -11"
+>
+
+
+    <a-box
+        width="3"
+        height="3"
+        depth="3"
+
+        material="
+            color:#505a5e;
+            metalness:.9;
+            roughness:.25;
+        "
+    >
+    </a-box>
+
+
+    <!-- HEATSINK FINS -->
+
+    <a-entity id="fins"></a-entity>
+
+</a-entity>
+
+
+<!-- =========================================================
+     POWER CONNECTORS
+========================================================= -->
+
+<a-entity
+    id="POWER_CONNECTORS"
+
+    class="interactive"
+
+    component-info="
+        name:POWER CONNECTORS;
+        description:Power connectors deliver regulated electrical power from the PSU to the motherboard, processor, graphics card and other hardware.;
+        specs:24-pin ATX|8-pin CPU|PCIe Power|12V|Power Delivery;
+    "
+>
+
+
+    <a-box
+        position="-5 1 -3"
+
+        width="3"
+        height=".4"
+        depth=".8"
+
+        material="
+            color:#ff5e00;
+            emissive:#ff5e00;
+            emissiveIntensity:2;
+        "
+    >
+    </a-box>
+
+
+    <a-text
+        value="POWER"
+        align="center"
+
+        position="-5 1.6 -3"
+
+        width="2.5"
+
+        color="#ff7b00"
+    >
+    </a-text>
+
+</a-entity>
+
+
+<!-- =========================================================
+     DATA CABLES
+========================================================= -->
+
+<a-entity id="cables"></a-entity>
+
+
+<!-- =========================================================
+     NETWORK CORE
+========================================================= -->
+
+<a-entity
+    id="NETWORK_CORE"
+
+    class="interactive"
+
+    component-info="
+        name:NETWORK CORE;
+        description:This visualization represents information travelling through the computer and beyond it as packets across connected systems.;
+        specs:Packets|Routing|TCP/IP|DNS|Internet;
+    "
+
+    position="0 5 -20"
+>
+
 
     <a-sphere
-        radius="1.5"
+        radius="1.6"
+
         material="
             color:#003cff;
             emissive:#003cff;
@@ -968,162 +2218,168 @@ body{
             transparent:true;
             opacity:.8;
         "
+
         animation="
             property:scale;
             from:1 1 1;
             to:1.25 1.25 1.25;
             dir:alternate;
             loop:true;
-            dur:1200;
-        ">
+            dur:1000;
+        "
+    >
     </a-sphere>
+
 
     <a-torus
         radius="2.5"
         radius-tubular=".03"
+
         rotation="45 0 0"
+
         material="
             color:#00eaff;
             emissive:#00eaff;
             emissiveIntensity:3;
         "
+
         animation="
             property:rotation;
             to:45 360 360;
             loop:true;
-            dur:6000;
-            easing:linear;
-        ">
-    </a-torus>
-
-</a-entity>
-
-
-<!-- =========================
-     AI CORE
-========================= -->
-
-<a-entity
-    id="ai"
-    class="interactive"
-    position="11 4 -13"
-    computer-component="
-        title:AI ENGINE — INTELLIGENCE LAYER;
-        description:The intelligence layer transforms data into predictions, decisions and generated outputs using machine learning and modern AI systems.;
-        tech:Machine Learning|Neural Networks|LLMs|Generative AI|Agents;
-    ">
-
-    <a-icosahedron
-        radius="2"
-        detail="2"
-        material="
-            color:#ff00d4;
-            emissive:#ff00d4;
-            emissiveIntensity:3;
-            metalness:.5;
-            roughness:.2;
-        "
-        animation="
-            property:rotation;
-            to:360 360 360;
-            loop:true;
-            dur:10000;
-            easing:linear;
-        ">
-    </a-icosahedron>
-
-    <a-ring
-        rotation="90 0 0"
-        radius-inner="2.8"
-        radius-outer="2.84"
-        material="
-            color:#ff00d4;
-            emissive:#ff00d4;
-            emissiveIntensity:3;
-        "
-        animation="
-            property:rotation;
-            to:90 -360 0;
-            loop:true;
             dur:5000;
             easing:linear;
-        ">
-    </a-ring>
+        "
+    >
+    </a-torus>
+
+
+    <a-text
+        value="NETWORK"
+        align="center"
+
+        position="0 2.5 0"
+
+        width="4"
+
+        color="#00eaff"
+    >
+    </a-text>
 
 </a-entity>
 
 
-<!-- =========================
+<!-- =========================================================
      OPERATING SYSTEM
-========================= -->
+========================================================= -->
 
 <a-entity
-    id="os"
+    id="OPERATING_SYSTEM"
+
     class="interactive"
-    position="0 4 -19"
-    computer-component="
-        title:OPERATING SYSTEM;
-        description:The operating system manages hardware, memory, processes, files and interaction between applications and the underlying computer.;
-        tech:Processes|Threads|Memory Management|File Systems|Kernel;
-    ">
+
+    component-info="
+        name:OPERATING SYSTEM;
+        description:The operating system manages processes, memory, files, devices and interaction between applications and hardware.;
+        specs:Kernel|Processes|Threads|Memory|File System|Drivers;
+    "
+
+    position="0 4 -22"
+>
+
 
     <a-box
-        width="9"
-        height="5"
+        width="11"
+        height="6"
         depth=".5"
+
         material="
-            color:#061820;
-            emissive:#003442;
+            color:#06141b;
+            emissive:#002b38;
             emissiveIntensity:1;
-            metalness:.7;
-        ">
+            metalness:.8;
+        "
+    >
     </a-box>
 
+
     <a-plane
-        width="7.8"
-        height="3.8"
+        width="9.5"
+        height="4.5"
+
         position="0 0 .3"
+
         material="
-            color:#02080d;
-            emissive:#001a22;
+            color:#01070b;
+            emissive:#001c24;
             emissiveIntensity:1;
-        ">
+        "
+    >
     </a-plane>
+
 
     <a-text
         value="OPERATING SYSTEM"
         align="center"
-        position="0 1.2 .5"
+
+        position="0 1.3 .6"
+
         width="6"
-        color="#00eaff">
+
+        color="#00eaff"
+    >
     </a-text>
 
+
     <a-text
-        value="KERNEL // PROCESS // MEMORY // FILES"
+        value="KERNEL   PROCESS   MEMORY   FILES   DRIVERS"
         align="center"
-        position="0 .3 .5"
+
+        position="0 .1 .6"
+
         width="5"
-        color="#73ffbd">
+
+        color="#73ffbd"
+    >
+    </a-text>
+
+
+    <a-text
+        value="HARDWARE  ←→  SOFTWARE"
+        align="center"
+
+        position="0 -1.2 .6"
+
+        width="4"
+
+        color="#60747a"
+    >
     </a-text>
 
 </a-entity>
 
 
-<!-- =========================
+<!-- =========================================================
      POWER CORE
-========================= -->
+========================================================= -->
 
 <a-entity
-    position="0 1 -1">
+    id="POWER_CORE"
+
+    position="0 1 -2"
+>
+
 
     <a-cylinder
         radius="2"
-        height=".4"
+        height=".5"
+
         material="
             color:#ff5e00;
             emissive:#ff5e00;
             emissiveIntensity:3;
         "
+
         animation="
             property:material.emissiveIntensity;
             from:1;
@@ -1131,39 +2387,45 @@ body{
             dir:alternate;
             loop:true;
             dur:500;
-        ">
+        "
+    >
     </a-cylinder>
 
+
     <a-text
-        value="POWER"
+        value="POWER CORE"
         align="center"
-        position="0 .6 0"
+
+        position="0 .8 0"
+
         width="3"
-        color="#ff8c00">
+
+        color="#ff8c00"
+    >
     </a-text>
 
 </a-entity>
 
 
-<!-- =========================
+<!-- =========================================================
      DATA TUNNEL
-========================= -->
+========================================================= -->
 
 <a-entity id="dataTunnel"></a-entity>
 
 
-<!-- =========================
+<!-- =========================================================
      PARTICLES
-========================= -->
+========================================================= -->
 
 <a-entity id="particles"></a-entity>
 
 
-<!-- =========================
-     DIGITAL DATA STREAM
-========================= -->
+<!-- =========================================================
+     DATA PACKETS
+========================================================= -->
 
-<a-entity id="dataStream"></a-entity>
+<a-entity id="dataPackets"></a-entity>
 
 
 </a-scene>
@@ -1171,316 +2433,634 @@ body{
 
 <script>
 
-/* =====================================
-   COMPONENT DATA SYSTEM
-===================================== */
+/* =========================================================
+   COMPONENT INFORMATION SYSTEM
+========================================================= */
 
-const componentData = {
+AFRAME.registerComponent(
+    "component-info",
+    {
 
-    cpu:{
-        title:"CPU — CENTRAL PROCESSING UNIT",
-        description:
-        "The computational brain of the system. The CPU executes instructions, performs calculations and coordinates operations between hardware and software.",
-        tech:["ALU","Control Unit","Registers","Cache","Instruction Cycle"]
-    },
+        schema:{
 
-    ram:{
-        title:"RAM — RANDOM ACCESS MEMORY",
-        description:
-        "High-speed temporary memory used by the computer to store active programs and data so the processor can access them quickly.",
-        tech:["Volatile Memory","Memory Cells","DDR","Bandwidth","Latency"]
-    },
+            name:{
+                type:"string"
+            },
 
-    storage:{
-        title:"STORAGE — MEMORY VAULT",
-        description:
-        "Permanent digital storage where files, applications and operating system data survive after the computer is powered down.",
-        tech:["SSD","NAND Flash","File System","Blocks","Persistence"]
-    },
+            description:{
+                type:"string"
+            },
 
-    gpu:{
-        title:"GPU — GRAPHICS PROCESSING UNIT",
-        description:
-        "A massively parallel processor designed to perform thousands of operations simultaneously. Modern GPUs are essential for graphics, machine learning and AI.",
-        tech:["Parallel Computing","CUDA","Tensor Cores","Rendering","AI"]
-    },
+            specs:{
+                type:"string"
+            }
 
-    network:{
-        title:"NETWORK — DIGITAL NERVOUS SYSTEM",
-        description:
-        "Networks allow computers and devices to exchange information. Data travels through packets across interconnected systems.",
-        tech:["TCP/IP","Packets","Routing","DNS","Internet"]
-    },
-
-    ai:{
-        title:"AI ENGINE — INTELLIGENCE LAYER",
-        description:
-        "The intelligence layer transforms data into predictions, decisions and generated outputs using machine learning and modern AI systems.",
-        tech:["Machine Learning","Neural Networks","LLMs","Generative AI","Agents"]
-    },
-
-    os:{
-        title:"OPERATING SYSTEM",
-        description:
-        "The operating system manages hardware, memory, processes, files and interaction between applications and the underlying computer.",
-        tech:["Processes","Threads","Memory Management","File Systems","Kernel"]
-    }
-
-};
+        },
 
 
-/* =====================================
-   INTERACTIVE COMPONENT
-===================================== */
+        init:function(){
 
-AFRAME.registerComponent("computer-component",{
+            const element=this.el;
 
-    schema:{
-        title:{type:"string"},
-        description:{type:"string"},
-        tech:{type:"string"}
-    },
 
-    init:function(){
+            element.classList.add(
+                "interactive"
+            );
 
-        const el=this.el;
 
-        el.classList.add("interactive");
+            /* HOVER */
 
-        el.addEventListener("mouseenter",()=>{
+            element.addEventListener(
+                "mouseenter",
+                ()=>{
 
-            el.setAttribute(
-                "animation__hover",
-                {
-                    property:"scale",
-                    to:"1.08 1.08 1.08",
-                    dur:250,
-                    easing:"easeOutQuad"
+                    element.setAttribute(
+                        "animation__hover",
+                        {
+                            property:"scale",
+
+                            to:"1.08 1.08 1.08",
+
+                            dur:250,
+
+                            easing:"easeOutQuad"
+                        }
+                    );
+
                 }
             );
 
-        });
 
-        el.addEventListener("mouseleave",()=>{
+            element.addEventListener(
+                "mouseleave",
+                ()=>{
 
-            el.setAttribute(
-                "animation__hover",
-                {
-                    property:"scale",
-                    to:"1 1 1",
-                    dur:250,
-                    easing:"easeOutQuad"
+                    element.setAttribute(
+                        "animation__hover",
+                        {
+                            property:"scale",
+
+                            to:"1 1 1",
+
+                            dur:250,
+
+                            easing:"easeOutQuad"
+                        }
+                    );
+
                 }
             );
 
-        });
 
-        el.addEventListener("click",()=>{
+            /* CLICK */
 
-            openPanel(
-                this.data.title,
-                this.data.description,
-                this.data.tech.split("|")
+            element.addEventListener(
+                "click",
+                ()=>{
+
+                    openComponent(
+                        this.data.name,
+                        this.data.description,
+                        this.data.specs
+                    );
+
+                }
             );
 
-        });
+        }
 
     }
+);
 
-});
 
-
-/* =====================================
+/* =========================================================
    PANEL
-===================================== */
+========================================================= */
 
-const panel=document.getElementById("panel");
+const panel=
+document.getElementById(
+    "componentPanel"
+);
 
-const panelTitle=document.getElementById("panelTitle");
+const title=
+document.getElementById(
+    "componentTitle"
+);
 
-const panelDescription=
-document.getElementById("panelDescription");
+const description=
+document.getElementById(
+    "componentDescription"
+);
 
-const panelTech=
-document.getElementById("panelTech");
+const specs=
+document.getElementById(
+    "componentSpecs"
+);
 
 
-function openPanel(title,description,tech){
+function openComponent(
+    componentName,
+    componentDescription,
+    componentSpecs
+){
 
-    panelTitle.textContent=title;
+    title.textContent=
+        componentName;
 
-    panelDescription.textContent=description;
+    description.textContent=
+        componentDescription;
 
-    panelTech.innerHTML="";
+    specs.innerHTML="";
 
-    tech.forEach(item=>{
 
-        const tag=document.createElement("span");
+    componentSpecs
+        .split("|")
+        .forEach(
+            item=>{
 
-        tag.textContent=item;
+                const span=
+                    document.createElement(
+                        "div"
+                    );
 
-        panelTech.appendChild(tag);
+                span.className=
+                    "spec";
 
-    });
+                span.textContent=
+                    item;
 
-    panel.classList.add("active");
+                specs.appendChild(
+                    span
+                );
+
+            }
+        );
+
+
+    panel.classList.add(
+        "open"
+    );
 
 }
 
+
+/* CLOSE */
 
 document
-.getElementById("closePanel")
-.addEventListener("click",()=>{
+    .getElementById(
+        "componentClose"
+    )
+    .addEventListener(
+        "click",
+        ()=>{
 
-    panel.classList.remove("active");
+            panel.classList.remove(
+                "open"
+            );
 
-});
+        }
+    );
 
 
-/* =====================================
+/* ESC */
+
+document.addEventListener(
+    "keydown",
+    event=>{
+
+        if(
+            event.key==="Escape"
+        ){
+
+            panel.classList.remove(
+                "open"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    FLOOR GRID
-===================================== */
+========================================================= */
 
-const grid=document.getElementById("grid");
-
-for(let x=-20;x<=20;x+=2){
-
-    const line=document.createElement("a-entity");
-
-    line.setAttribute(
-        "geometry",
-        "primitive:box; width:.015; height:.02; depth:40"
-    );
-
-    line.setAttribute(
-        "position",
-        `${x} .02 -5`
-    );
-
-    line.setAttribute(
-        "material",
-        `
-        color:#07343e;
-        emissive:#07343e;
-        emissiveIntensity:1
-        `
-    );
-
-    grid.appendChild(line);
-
-}
+const floorGrid=
+document.getElementById(
+    "floorGrid"
+);
 
 
-for(let z=-23;z<=15;z+=2){
+for(
+    let x=-21;
+    x<=21;
+    x+=2
+){
 
-    const line=document.createElement("a-entity");
-
-    line.setAttribute(
-        "geometry",
-        "primitive:box; width:40; height:.02; depth:.015"
-    );
+    const line=
+        document.createElement(
+            "a-box"
+        );
 
     line.setAttribute(
         "position",
-        `0 .025 ${z}`
-    );
-
-    line.setAttribute(
-        "material",
-        `
-        color:#07343e;
-        emissive:#07343e;
-        emissiveIntensity:1
-        `
-    );
-
-    grid.appendChild(line);
-
-}
-
-
-/* =====================================
-   CIRCUIT CONNECTIONS
-===================================== */
-
-const circuits=document.getElementById("circuits");
-
-function circuit(x,z,w,d){
-
-    const line=document.createElement("a-box");
-
-    line.setAttribute(
-        "position",
-        `${x} .36 ${z}`
+        `${x} .32 -4`
     );
 
     line.setAttribute(
         "width",
-        w
+        ".012"
     );
 
     line.setAttribute(
         "height",
-        ".025"
+        ".02"
     );
 
     line.setAttribute(
         "depth",
-        d
+        "40"
     );
 
     line.setAttribute(
         "material",
         `
-        color:#00eaff;
-        emissive:#00eaff;
-        emissiveIntensity:2
+        color:#07343e;
+        emissive:#07343e;
+        emissiveIntensity:1
         `
     );
 
-    circuits.appendChild(line);
+    floorGrid.appendChild(
+        line
+    );
 
 }
 
 
-circuit(-5,-4,7,.04);
-circuit(5,-4,7,.04);
-circuit(0,-10,.04,10);
-circuit(-7,-9,.04,5);
-circuit(7,-9,.04,5);
-circuit(-12,-7,5,.04);
-circuit(12,-7,5,.04);
+for(
+    let z=-24;
+    z<=16;
+    z+=2
+){
+
+    const line=
+        document.createElement(
+            "a-box"
+        );
+
+    line.setAttribute(
+        "position",
+        `0 .33 ${z}`
+    );
+
+    line.setAttribute(
+        "width",
+        "42"
+    );
+
+    line.setAttribute(
+        "height",
+        ".02"
+    );
+
+    line.setAttribute(
+        "depth",
+        ".012"
+    );
+
+    line.setAttribute(
+        "material",
+        `
+        color:#07343e;
+        emissive:#07343e;
+        emissiveIntensity:1
+        `
+    );
+
+    floorGrid.appendChild(
+        line
+    );
+
+}
 
 
-/* =====================================
+/* =========================================================
+   MOTHERBOARD CIRCUITS
+========================================================= */
+
+const traces=
+document.getElementById(
+    "traces"
+);
+
+
+function createTrace(
+    x,
+    y,
+    z,
+    width,
+    depth,
+    color="#00eaff"
+){
+
+    const trace=
+        document.createElement(
+            "a-box"
+        );
+
+
+    trace.setAttribute(
+        "position",
+        `${x} ${y} ${z}`
+    );
+
+
+    trace.setAttribute(
+        "width",
+        width
+    );
+
+
+    trace.setAttribute(
+        "height",
+        ".025"
+    );
+
+
+    trace.setAttribute(
+        "depth",
+        depth
+    );
+
+
+    trace.setAttribute(
+        "material",
+        `
+        color:${color};
+        emissive:${color};
+        emissiveIntensity:2
+        `
+    );
+
+
+    traces.appendChild(
+        trace
+    );
+
+}
+
+
+/* Horizontal traces */
+
+createTrace(
+    -13,
+    .72,
+    -4,
+    12,
+    .04
+);
+
+createTrace(
+    13,
+    .72,
+    -4,
+    12,
+    .04
+);
+
+createTrace(
+    -10,
+    .72,
+    -8,
+    7,
+    .04
+);
+
+createTrace(
+    10,
+    .72,
+    -8,
+    7,
+    .04
+);
+
+
+/* Vertical traces */
+
+createTrace(
+    -5,
+    .73,
+    -9,
+    .04,
+    9
+);
+
+createTrace(
+    5,
+    .73,
+    -9,
+    .04,
+    9
+);
+
+createTrace(
+    0,
+    .73,
+    -15,
+    .04,
+    8
+);
+
+
+/* =========================================================
+   COOLER FINS
+========================================================= */
+
+const fins=
+document.getElementById(
+    "fins"
+);
+
+
+for(
+    let i=-5;
+    i<=5;
+    i++
+){
+
+    const fin=
+        document.createElement(
+            "a-box"
+        );
+
+    fin.setAttribute(
+        "position",
+        `${i*.25} 0 0`
+    );
+
+    fin.setAttribute(
+        "width",
+        ".12"
+    );
+
+    fin.setAttribute(
+        "height",
+        "2.8"
+    );
+
+    fin.setAttribute(
+        "depth",
+        "2.7"
+    );
+
+    fin.setAttribute(
+        "material",
+        `
+        color:#69777b;
+        metalness:.9;
+        roughness:.2
+        `
+    );
+
+    fins.appendChild(
+        fin
+    );
+
+}
+
+
+/* =========================================================
+   DATA CABLES
+========================================================= */
+
+const cables=
+document.getElementById(
+    "cables"
+);
+
+
+function createCable(
+    start,
+    end,
+    color
+){
+
+    const midX=
+        (start.x+end.x)/2;
+
+    const midY=
+        (start.y+end.y)/2;
+
+    const midZ=
+        (start.z+end.z)/2;
+
+
+    const distance=
+        Math.sqrt(
+            Math.pow(
+                end.x-start.x,
+                2
+            )
+            +
+            Math.pow(
+                end.z-start.z,
+                2
+            )
+        );
+
+
+    const cable=
+        document.createElement(
+            "a-cylinder"
+        );
+
+
+    cable.setAttribute(
+        "radius",
+        ".035"
+    );
+
+
+    cable.setAttribute(
+        "height",
+        distance
+    );
+
+
+    cable.setAttribute(
+        "position",
+        `${midX} ${midY} ${midZ}`
+    );
+
+
+    cable.setAttribute(
+        "material",
+        `
+        color:${color};
+        emissive:${color};
+        emissiveIntensity:2
+        `
+    );
+
+
+    cable.object3D.rotation.x=
+        Math.PI/2;
+
+
+    cables.appendChild(
+        cable
+    );
+
+}
+
+
+/* =========================================================
    DATA TUNNEL
-===================================== */
+========================================================= */
 
-const tunnel=document.getElementById("dataTunnel");
+const tunnel=
+document.getElementById(
+    "dataTunnel"
+);
 
-for(let i=0;i<12;i++){
 
-    const ring=document.createElement("a-torus");
+for(
+    let i=0;
+    i<15;
+    i++
+){
+
+    const ring=
+        document.createElement(
+            "a-torus"
+        );
+
 
     ring.setAttribute(
         "position",
-        `0 ${2.5+i*.15} ${-2-i*1.3}`
+        `0 ${3+i*.08} ${-5-i*1.1}`
     );
+
 
     ring.setAttribute(
         "rotation",
         "90 0 0"
     );
 
+
     ring.setAttribute(
         "radius",
-        `${4+i*.1}`
+        `${3.5+i*.12}`
     );
+
 
     ring.setAttribute(
         "radius-tubular",
-        ".025"
+        ".018"
     );
+
 
     ring.setAttribute(
         "material",
@@ -1490,6 +3070,7 @@ for(let i=0;i<12;i++){
         emissiveIntensity:2
         `
     );
+
 
     ring.setAttribute(
         "animation",
@@ -1497,46 +3078,68 @@ for(let i=0;i<12;i++){
         property:rotation;
         to:90 360 0;
         loop:true;
-        dur:${5000+i*300};
+        dur:${5000+i*250};
         easing:linear
         `
     );
 
-    tunnel.appendChild(ring);
+
+    tunnel.appendChild(
+        ring
+    );
 
 }
 
 
-/* =====================================
-   PARTICLE FIELD
-===================================== */
+/* =========================================================
+   PARTICLES
+========================================================= */
 
 const particles=
-document.getElementById("particles");
+document.getElementById(
+    "particles"
+);
 
-for(let i=0;i<250;i++){
 
-    const p=document.createElement("a-sphere");
+for(
+    let i=0;
+    i<350;
+    i++
+){
 
-    const x=(Math.random()*40)-20;
+    const particle=
+        document.createElement(
+            "a-sphere"
+        );
 
-    const y=Math.random()*14+.5;
 
-    const z=(Math.random()*40)-24;
+    const x=
+        Math.random()*42-21;
 
-    const size=Math.random()*.035+.01;
+    const y=
+        Math.random()*14+.5;
 
-    p.setAttribute(
+    const z=
+        Math.random()*42-24;
+
+
+    const size=
+        Math.random()*.035+.008;
+
+
+    particle.setAttribute(
         "position",
         `${x} ${y} ${z}`
     );
 
-    p.setAttribute(
+
+    particle.setAttribute(
         "radius",
         size
     );
 
-    p.setAttribute(
+
+    particle.setAttribute(
         "material",
         `
         color:#00eaff;
@@ -1545,45 +3148,64 @@ for(let i=0;i<250;i++){
         `
     );
 
-    p.setAttribute(
+
+    particle.setAttribute(
         "animation",
         `
         property:position;
         to:${x} ${y+Math.random()*2} ${z};
         dir:alternate;
         loop:true;
-        dur:${3000+Math.random()*5000};
+        dur:${3000+Math.random()*6000};
         easing:easeInOutSine
         `
     );
 
-    particles.appendChild(p);
+
+    particles.appendChild(
+        particle
+    );
 
 }
 
 
-/* =====================================
+/* =========================================================
    DATA PACKETS
-===================================== */
+========================================================= */
 
-const stream=
-document.getElementById("dataStream");
+const packets=
+document.getElementById(
+    "dataPackets"
+);
 
-for(let i=0;i<30;i++){
 
-    const packet=document.createElement("a-box");
+for(
+    let i=0;
+    i<60;
+    i++
+){
+
+    const packet=
+        document.createElement(
+            "a-box"
+        );
+
 
     packet.setAttribute(
-        "width",".08"
+        "width",
+        ".07"
     );
 
     packet.setAttribute(
-        "height",".08"
+        "height",
+        ".07"
     );
 
     packet.setAttribute(
-        "depth",".08"
+        "depth",
+        ".07"
     );
+
 
     packet.setAttribute(
         "material",
@@ -1594,268 +3216,367 @@ for(let i=0;i<30;i++){
         `
     );
 
-    const startX=-12+Math.random()*24;
+
+    const y=
+        .5+Math.random()*5;
+
+    const startX=
+        -20+Math.random()*40;
+
+    const z=
+        -2-Math.random()*18;
+
 
     packet.setAttribute(
         "position",
-        `${startX} .5 -4`
+        `${startX} ${y} ${z}`
     );
+
 
     packet.setAttribute(
         "animation",
         `
         property:position;
-        to:${12-Math.random()*24} .5 -4;
+        to:${20-Math.random()*40} ${y} ${z};
         loop:true;
-        dur:${2000+Math.random()*3000};
-        easing:linear;
-        delay:${Math.random()*3000}
+        dur:${1500+Math.random()*3500};
+        delay:${Math.random()*3000};
+        easing:linear
         `
     );
 
-    stream.appendChild(packet);
+
+    packets.appendChild(
+        packet
+    );
 
 }
 
 
-/* =====================================
-   CHAPTER DETECTION
-===================================== */
-
-const cameraRig=
-document.getElementById("cameraRig");
-
-const locationText=
-document.getElementById("location");
-
-
-setInterval(()=>{
-
-    const pos=cameraRig.object3D.position;
-
-    if(pos.z>5){
-
-        locationText.textContent=
-        "SECTOR: INPUT / ENTRY";
-
-    }
-
-    else if(pos.z>-8){
-
-        locationText.textContent=
-        "SECTOR: PROCESSING CORE";
-
-    }
-
-    else if(pos.z>-16){
-
-        locationText.textContent=
-        "SECTOR: COMPUTATION";
-
-    }
-
-    else{
-
-        locationText.textContent=
-        "SECTOR: INTELLIGENCE / OUTPUT";
-
-    }
-
-},300);
-
-
-/* =====================================
+/* =========================================================
    SYSTEM STATUS
-===================================== */
+========================================================= */
 
-const status=
-document.getElementById("status");
-
-setInterval(()=>{
-
-    const cpu=
-    Math.floor(20+Math.random()*60);
-
-    const memory=
-    Math.floor(40+Math.random()*45);
-
-    status.textContent=
-    `CPU LOAD ${cpu}% · MEMORY ${memory}%`;
-
-},1000);
+const stats=
+document.getElementById(
+    "systemStats"
+);
 
 
-/* =====================================
-   GUIDED TOUR
-===================================== */
+setInterval(
+    ()=>{
 
-let touring=false;
+        const cpu=
+            Math.floor(
+                20+Math.random()*65
+            );
 
-const tourBtn=
-document.getElementById("tourBtn");
+        const ram=
+            Math.floor(
+                40+Math.random()*45
+            );
+
+        const temp=
+            Math.floor(
+                34+Math.random()*15
+            );
 
 
-const tourPoints=[
+        stats.textContent=
+            `CPU ${cpu}% · RAM ${ram}% · TEMP ${temp}°C`;
+
+    },
+
+    1000
+);
+
+
+/* =========================================================
+   SECTOR DETECTION
+========================================================= */
+
+const player=
+document.getElementById(
+    "player"
+);
+
+const sector=
+document.getElementById(
+    "sector"
+);
+
+
+setInterval(
+    ()=>{
+
+        const position=
+            player.object3D.position;
+
+
+        if(
+            position.z>8
+        ){
+
+            sector.textContent=
+                "SECTOR: INPUT / ENTRY";
+
+        }
+
+        else if(
+            position.z>-4
+        ){
+
+            sector.textContent=
+                "SECTOR: POWER / MAINBOARD";
+
+        }
+
+        else if(
+            position.z>-10
+        ){
+
+            sector.textContent=
+                "SECTOR: PROCESSING";
+
+        }
+
+        else if(
+            position.z>-17
+        ){
+
+            sector.textContent=
+                "SECTOR: MEMORY / STORAGE";
+
+        }
+
+        else{
+
+            sector.textContent=
+                "SECTOR: NETWORK / SOFTWARE";
+
+        }
+
+    },
+
+    300
+);
+
+
+/* =========================================================
+   GUIDED SYSTEM TOUR
+========================================================= */
+
+const tourButton=
+document.getElementById(
+    "tourButton"
+);
+
+
+let tourRunning=
+    false;
+
+
+const tourStops=[
 
     {
-        pos:"0 2 14",
-        look:"0 2 0",
-        label:"SYSTEM ENTRY"
+        position:"0 2 16",
+        duration:2000,
+        name:"SYSTEM ENTRY"
     },
 
     {
-        pos:"0 3 2",
-        look:"0 3 -7",
-        label:"CPU CORE"
+        position:"0 4 0",
+        duration:2200,
+        name:"MAINBOARD"
     },
 
     {
-        pos:"-9 3 -1",
-        look:"0 3 -4",
-        label:"MEMORY"
+        position:"0 3 -7",
+        duration:2200,
+        name:"CPU"
     },
 
     {
-        pos:"9 3 -1",
-        look:"0 3 -4",
-        label:"STORAGE"
+        position:"-7 3 -7",
+        duration:2000,
+        name:"RAM"
     },
 
     {
-        pos:"0 3 -11",
-        look:"0 2 -14",
-        label:"GPU"
+        position:"9 3 -6",
+        duration:2000,
+        name:"SSD"
     },
 
     {
-        pos:"-9 4 -10",
-        look:"-11 4 -13",
-        label:"NETWORK"
+        position:"0 3 -12",
+        duration:2200,
+        name:"GPU"
     },
 
     {
-        pos:"9 4 -10",
-        look:"11 4 -13",
-        label:"AI ENGINE"
+        position:"-13 3 -6",
+        duration:2200,
+        name:"POWER SUPPLY"
     },
 
     {
-        pos:"0 4 -17",
-        look:"0 4 -19",
-        label:"OPERATING SYSTEM"
+        position:"13 4 -15",
+        duration:2200,
+        name:"NETWORK"
+    },
+
+    {
+        position:"0 4 -22",
+        duration:2500,
+        name:"OPERATING SYSTEM"
     }
 
 ];
 
 
-tourBtn.addEventListener("click",()=>{
+tourButton.addEventListener(
+    "click",
+    ()=>{
 
-    if(touring) return;
+        if(tourRunning)
+            return;
 
-    touring=true;
 
-    runTour(0);
+        tourRunning=true;
 
-});
+        tourButton.textContent=
+            "TOUR RUNNING";
+
+        runTour(0);
+
+    }
+);
 
 
 function runTour(index){
 
-    if(index>=tourPoints.length){
+    if(
+        index>=tourStops.length
+    ){
 
-        touring=false;
+        tourRunning=false;
 
-        tourBtn.textContent=
-        "REPLAY SYSTEM TOUR";
+        tourButton.textContent=
+            "REPLAY TOUR";
 
         return;
 
     }
 
-    const point=tourPoints[index];
 
-    cameraRig.setAttribute(
-        "animation__move",
+    const stop=
+        tourStops[index];
+
+
+    player.setAttribute(
+        "animation__tour",
         `
         property:position;
-        to:${point.pos};
-        dur:2500;
+        to:${stop.position};
+        dur:${stop.duration};
         easing:easeInOutCubic
         `
     );
 
-    locationText.textContent=
-    "TOUR: "+point.label;
 
-    setTimeout(()=>{
+    sector.textContent=
+        "TOUR: "+stop.name;
 
-        runTour(index+1);
 
-    },3300);
+    setTimeout(
+        ()=>{
+
+            runTour(index+1);
+
+        },
+
+        stop.duration+500
+    );
 
 }
 
 
-/* =====================================
-   ENTER SYSTEM
-===================================== */
+/* =========================================================
+   ENTER COMPUTER
+========================================================= */
 
-const loading=
-document.getElementById("loading");
+const bootScreen=
+document.getElementById(
+    "bootScreen"
+);
+
 
 document
-.getElementById("enterBtn")
-.addEventListener("click",()=>{
+    .getElementById(
+        "enterSystem"
+    )
+    .addEventListener(
+        "click",
+        ()=>{
 
-    loading.style.opacity="0";
-
-    setTimeout(()=>{
-
-        loading.style.display="none";
-
-    },1000);
-
-});
+            bootScreen.style.opacity=
+                "0";
 
 
-/* =====================================
-   ESC CLOSE PANEL
-===================================== */
+            setTimeout(
+                ()=>{
 
-document.addEventListener("keydown",(e)=>{
+                    bootScreen.style.display=
+                        "none";
 
-    if(e.key==="Escape"){
+                },
 
-        panel.classList.remove("active");
+                1000
+            );
 
-    }
+        }
+    );
 
-});
+
+/* =========================================================
+   RANDOM HUD GLITCH
+========================================================= */
+
+setInterval(
+    ()=>{
+
+        if(
+            Math.random()>.82
+        ){
+
+            const logo=
+                document.querySelector(
+                    ".hud-logo"
+                );
 
 
-/* =====================================
-   RANDOM DIGITAL GLITCH
-===================================== */
+            logo.style.transform=
+                `translateX(${Math.random()*4-2}px)`;
 
-setInterval(()=>{
 
-    const logo=
-    document.querySelector(".logo");
+            setTimeout(
+                ()=>{
 
-    if(Math.random()>.8){
+                    logo.style.transform=
+                        "";
 
-        logo.style.transform=
-        `translateX(${Math.random()*4-2}px)`;
+                },
 
-        setTimeout(()=>{
+                100
+            );
 
-            logo.style.transform="";
+        }
 
-        },100);
+    },
 
-    }
-
-},1000);
+    1200
+);
 
 </script>
 
