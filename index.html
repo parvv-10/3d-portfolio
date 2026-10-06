@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Parv | 3D Portfolio</title>
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #02040a;
+            color: white;
+        }
+
+        /* =========================
+           HUD
+        ========================= */
+
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+
+            z-index: 100;
+
+            padding: 16px 20px;
+
+            background: rgba(5, 10, 25, 0.65);
+
+            border: 1px solid rgba(0, 255, 255, 0.35);
+
+            border-radius: 12px;
+
+            backdrop-filter: blur(10px);
+
+            box-shadow:
+                0 0 25px rgba(0,255,255,0.1);
+        }
+
+        #hud h1 {
+            margin: 0;
+
+            font-size: 18px;
+
+            letter-spacing: 4px;
+
+            color: #00ffff;
+        }
+
+        #hud p {
+            margin: 6px 0 0;
+
+            font-size: 11px;
+
+            color: #8fa8b8;
+
+            letter-spacing: 2px;
+        }
+
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        #status {
+            position: fixed;
+
+            top: 20px;
+            right: 20px;
+
+            z-index: 100;
+
+            font-size: 11px;
+
+            letter-spacing: 2px;
+
+            color: #00ff9d;
+        }
+
+        #status::before {
+            content: "";
+
+            display: inline-block;
+
+            width: 7px;
+            height: 7px;
+
+            background: #00ff9d;
+
+            border-radius: 50%;
+
+            margin-right: 8px;
+
+            box-shadow:
+                0 0 10px #00ff9d;
+        }
+
+
+        /* =========================
+           Instructions
+        ========================= */
+
+        #instructions {
+            position: fixed;
+
+            bottom: 20px;
+            left: 20px;
+
+            z-index: 100;
+
+            color: #718096;
+
+            font-size: 11px;
+
+            letter-spacing: 1px;
+        }
+
+
+        /* =========================
+           Crosshair
+        ========================= */
+
+        #crosshair {
+            position: fixed;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            width: 20px;
+            height: 20px;
+
+            z-index: 50;
+
+            pointer-events: none;
+        }
+
+        #crosshair::before,
+        #crosshair::after {
+
+            content: "";
+
+            position: absolute;
+
+            background: #00ffff;
+        }
+
+        #crosshair::before {
+
+            width: 20px;
+            height: 1px;
+
+            top: 9px;
+            left: 0;
+        }
+
+        #crosshair::after {
+
+            width: 1px;
+            height: 20px;
+
+            left: 9px;
+            top: 0;
+        }
+
+
+        /* =========================
+           Project Panel
+        ========================= */
+
+        #projectPanel {
+
+            position: fixed;
+
+            top: 50%;
+            right: 40px;
+
+            transform:
+                translateY(-50%)
+                translateX(120%);
+
+            width: 330px;
+
+            padding: 25px;
+
+            z-index: 200;
+
+            background:
+                rgba(5, 10, 25, 0.88);
+
+            border:
+
+                1px solid
+                rgba(0,255,255,0.45);
+
+            border-radius: 18px;
+
+            backdrop-filter: blur(20px);
+
+            box-shadow:
+
+                0 0 40px
+                rgba(0,255,255,0.12);
+
+            transition:
+                transform 0.5s ease;
+        }
+
+        #projectPanel.active {
+
+            transform:
+                translateY(-50%)
+                translateX(0);
+        }
+
+        #projectPanel h2 {
+
+            margin-top: 5px;
+
+            color: #00ffff;
+
+            font-size: 22px;
+        }
+
+        #projectPanel .category {
+
+            font-size: 10px;
+
+            letter-spacing: 3px;
+
+            color: #ff00ff;
+        }
+
+        #projectPanel p {
+
+            color: #a7b3c2;
+
+            line-height: 1.6;
+
+            font-size: 13px;
+        }
+
+        .tech {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+            margin-top: 15px;
+        }
+
+        .tech span {
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            background:
+                rgba(0,255,255,0.08);
+
+            border:
+                1px solid
+                rgba(0,255,255,0.2);
+
+            color: #00ffff;
+        }
+
+        #closePanel {
+
+            position: absolute;
+
+            top: 15px;
+            right: 15px;
+
+            width: 28px;
+            height: 28px;
+
+            border-radius: 50%;
+
+            border: 1px solid #444;
+
+            background: transparent;
+
+            color: white;
+
+            cursor: pointer;
+        }
+
+        #closePanel:hover {
+
+            border-color: #00ffff;
+
+            color: #00ffff;
+        }
+
+        .buttons {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 20px;
+        }
+
+        .buttons a {
+
+            flex: 1;
+
+            padding: 10px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            color: white;
+
+            border:
+                1px solid
+                rgba(0,255,255,0.3);
+
+            background:
+                rgba(0,255,255,0.08);
+        }
+
+        .buttons a:hover {
+
+            background:
+                rgba(0,255,255,0.2);
+        }
+
+
+        /* =========================
+           Bottom stats
+        ========================= */
+
+        #stats {
+
+            position: fixed;
+
+            bottom: 20px;
+            right: 20px;
+
+            z-index: 100;
+
+            text-align: right;
+
+            color: #667085;
+
+            font-size: 10px;
+
+            line-height: 1.8;
+        }
+
+        #stats strong {
+
+            color: #00ffff;
+        }
+
+
+        /* =========================
+           Mobile
+        ========================= */
+
+        @media(max-width: 600px) {
+
+            #projectPanel {
+
+                width: 90%;
+
+                right: 5%;
+
+                padding: 20px;
+            }
+
+            #hud {
+
+                top: 10px;
+                left: 10px;
+            }
+
+            #instructions {
+
+                display: none;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HUD
+    ========================= -->
+
+    <div id="hud">
+
+        <h1>PARV // SYSTEM</h1>
+
+        <p>3D PORTFOLIO · ONLINE</p>
+
+    </div>
+
+
+    <div id="status">
+        SYSTEM ONLINE
+    </div>
+
+
+    <div id="crosshair"></div>
+
+
+    <div id="instructions">
+
+        WASD — MOVE &nbsp; | &nbsp;
+        MOUSE — LOOK &nbsp; | &nbsp;
+        CLICK — EXPLORE
+
+    </div>
+
+
+    <!-- =========================
+         Stats
+    ========================= -->
+
+    <div id="stats">
+
+        PROJECTS:
+        <strong id="projectCount">06</strong>
+
+        <br>
+
+        SYSTEM:
+        <strong>ONLINE</strong>
+
+        <br>
+
+        ENGINE:
+        <strong>A-FRAME</strong>
+
+    </div>
+
+
+    <!-- =========================
+         PROJECT PANEL
+    ========================= -->
+
+    <div id="projectPanel">
+
+        <button id="closePanel">×</button>
+
+        <div class="category"
+             id="panelCategory">
+
+            PROJECT
+
+        </div>
+
+        <h2 id="panelTitle">
+
+            Project
+
+        </h2>
+
+        <p id="panelDescription">
+
+            Project description.
+
+        </p>
+
+        <div class="tech"
+             id="panelTech">
+        </div>
+
+        <div class="buttons">
+
+            <a href="#"
+               id="githubLink"
+               target="_blank">
+
+                GitHub
+
+            </a>
+
+            <a href="#"
+               id="demoLink"
+               target="_blank">
+
+                Live Demo
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         A-FRAME SCENE
+    ================================================== -->
+
+    <a-scene
+        renderer="
+            antialias: true;
+            colorManagement: true;
+        "
+        background="color: #02040a">
+
+
+        <!-- =========================
+             CAMERA
+        ========================= -->
+
+        <a-camera
+
+            id="camera"
+
+            position="0 2 11"
+
+            look-controls
+
+            wasd-controls="
+                acceleration: 30
+            ">
+
+            <a-cursor
+
+                color="#00ffff"
+
+                fuse="false">
+
+            </a-cursor>
+
+        </a-camera>
+
+
+
+        <!-- =========================
+             LIGHTING
+        ========================= -->
+
+        <a-light
+
+            type="ambient"
+
+            intensity="0.25"
+
+            color="#ffffff">
+
+        </a-light>
+
+
+        <a-light
+
+            type="point"
+
+            position="0 4 0"
+
+            intensity="5"
+
+            distance="30"
+
+            color="#00ffff">
+
+        </a-light>
+
+
+        <a-light
+
+            type="point"
+
+            position="-8 4 -5"
+
+            intensity="3"
+
+            distance="20"
+
+            color="#ff00ff">
+
+        </a-light>
+
+
+
+        <!-- =========================
+             SKY
+        ========================= -->
+
+        <a-sky
+
+            color="#02040a">
+
+        </a-sky>
+
+
+
+        <!-- =========================
+             GROUND
+        ========================= -->
+
+        <a-plane
+
+            rotation="-90 0 0"
+
+            width="80"
+
+            height="80"
+
+            color="#030712">
+
+        </a-plane>
+
+
+
+        <!-- ==================================================
+             CENTRAL CORE
+        ================================================== -->
+
+        <a-entity
+
+            id="core"
+
+            position="0 2 -2">
+
+
+            <!-- Outer glow -->
+
+            <a-sphere
+
+                radius="2.5"
+
+                material="
+                    color: #001f2f;
+                    opacity: 0.35;
+                    transparent: true;
+                    shader: flat;
+                "
+
+                animation="
+                    property: scale;
+                    to: 1.12 1.12 1.12;
+                    dir: alternate;
+                    loop: true;
+                    dur: 2500;
+                ">
+
+            </a-sphere>
+
+
+            <!-- Main core -->
+
+            <a-icosahedron
+
+                radius="1.7"
+
+                color="#00ffff"
+
+                material="
+                    metalness: 0.8;
+                    roughness: 0.2;
+                    emissive: #003344;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 360;
+                    loop: true;
+                    dur: 12000;
+                    easing: linear;
+                ">
+
+            </a-icosahedron>
+
+
+            <!-- Inner sphere -->
+
+            <a-sphere
+
+                radius="0.8"
+
+                color="#00131c"
+
+                material="
+                    emissive: #00ffff;
+                    emissiveIntensity: 2;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 0 360 0;
+                    loop: true;
+                    dur: 5000;
+                    easing: linear;
+                ">
+
+            </a-sphere>
+
+
+            <!-- Core label -->
+
+            <a-text
+
+                value="PARV"
+
+                align="center"
+
+                position="0 0 1.9"
+
+                color="#ffffff"
+
+                width="5">
+
+            </a-text>
+
+
+        </a-entity>
+
+
+
+        <!-- ==================================================
+             ORBIT RINGS
+        ================================================== -->
+
+
+        <a-torus
+
+            position="0 2 -2"
+
+            rotation="70 0 20"
+
+            radius="4"
+
+            radius-tubular="0.025"
+
+            color="#00ffff"
+
+            material="
+                emissive: #00ffff;
+            "
+
+            animation="
+                property: rotation;
+                to: 70 360 20;
+                loop: true;
+                dur: 18000;
+                easing: linear;
+            ">
+
+        </a-torus>
+
+
+        <a-torus
+
+            position="0 2 -2"
+
+            rotation="65 40 0"
+
+            radius="6"
+
+            radius-tubular="0.025"
+
+            color="#ff00ff"
+
+            material="
+                emissive: #ff00ff;
+            "
+
+            animation="
+                property: rotation;
+                to: 425 40 360;
+                loop: true;
+                dur: 25000;
+                easing: linear;
+            ">
+
+        </a-torus>
+
+
+        <a-torus
+
+            position="0 2 -2"
+
+            rotation="75 0 80"
+
+            radius="8"
+
+            radius-tubular="0.02"
+
+            color="#0088ff"
+
+            material="
+                emissive: #0088ff;
+            "
+
+            animation="
+                property: rotation;
+                to: 435 360 80;
+                loop: true;
+                dur: 30000;
+                easing: linear;
+            ">
+
+        </a-torus>
+
+
+
+        <!-- ==================================================
+             PROJECT PLANETS
+        ================================================== -->
+
+
+        <!-- PROJECT 1 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="ai"
+
+            position="0 2 2">
+
+
+            <a-sphere
+
+                radius="0.55"
+
+                color="#00ffff"
+
+                material="
+                    emissive: #003333;
+                    metalness: 0.6;
+                    roughness: 0.2;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 0;
+                    loop: true;
+                    dur: 5000;
+                    easing: linear;
+                "
+
+                event-set__enter="
+                    _event: mouseenter;
+                    scale: 1.5 1.5 1.5;
+                "
+
+                event-set__leave="
+                    _event: mouseleave;
+                    scale: 1 1 1;
+                "
+
+                onclick="
+                    showProject('ai')
+                ">
+
+            </a-sphere>
+
+
+            <a-text
+
+                value="AI ASSISTANT"
+
+                align="center"
+
+                position="0 0.9 0"
+
+                color="#00ffff"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- PROJECT 2 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="agent"
+
+            position="5 3 -4">
+
+
+            <a-dodecahedron
+
+                radius="0.65"
+
+                color="#ff00ff"
+
+                material="
+                    emissive: #330033;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 360;
+                    loop: true;
+                    dur: 6000;
+                    easing: linear;
+                "
+
+                onclick="
+                    showProject('agent')
+                ">
+
+            </a-dodecahedron>
+
+
+            <a-text
+
+                value="AI AGENTS"
+
+                align="center"
+
+                position="0 1 0"
+
+                color="#ff00ff"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- PROJECT 3 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="web"
+
+            position="-6 3 -3">
+
+
+            <a-octahedron
+
+                radius="0.7"
+
+                color="#00ff99"
+
+                material="
+                    emissive: #003322;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 0 360;
+                    loop: true;
+                    dur: 7000;
+                    easing: linear;
+                "
+
+                onclick="
+                    showProject('web')
+                ">
+
+            </a-octahedron>
+
+
+            <a-text
+
+                value="WEB APPS"
+
+                align="center"
+
+                position="0 1 0"
+
+                color="#00ff99"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- PROJECT 4 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="ml"
+
+            position="7 2 -10">
+
+
+            <a-icosahedron
+
+                radius="0.8"
+
+                color="#ffff00"
+
+                material="
+                    emissive: #332200;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 360;
+                    loop: true;
+                    dur: 8000;
+                    easing: linear;
+                "
+
+                onclick="
+                    showProject('ml')
+                ">
+
+            </a-icosahedron>
+
+
+            <a-text
+
+                value="ML LAB"
+
+                align="center"
+
+                position="0 1.1 0"
+
+                color="#ffff00"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- PROJECT 5 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="fullstack"
+
+            position="-8 2 -10">
+
+
+            <a-box
+
+                width="1.2"
+
+                height="1.2"
+
+                depth="1.2"
+
+                color="#ff6633"
+
+                material="
+                    emissive: #331100;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 360;
+                    loop: true;
+                    dur: 6000;
+                    easing: linear;
+                "
+
+                onclick="
+                    showProject('fullstack')
+                ">
+
+            </a-box>
+
+
+            <a-text
+
+                value="FULL STACK"
+
+                align="center"
+
+                position="0 1.2 0"
+
+                color="#ff6633"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- PROJECT 6 -->
+
+        <a-entity
+
+            class="project"
+
+            project-id="lab"
+
+            position="0 6 -12">
+
+
+            <a-tetrahedron
+
+                radius="0.9"
+
+                color="#0088ff"
+
+                material="
+                    emissive: #001133;
+                "
+
+                animation="
+                    property: rotation;
+                    to: 360 360 360;
+                    loop: true;
+                    dur: 5000;
+                    easing: linear;
+                "
+
+                onclick="
+                    showProject('lab')
+                ">
+
+            </a-tetrahedron>
+
+
+            <a-text
+
+                value="EXPERIMENT LAB"
+
+                align="center"
+
+                position="0 1.3 0"
+
+                color="#0088ff"
+
+                width="3">
+
+            </a-text>
+
+        </a-entity>
+
+
+
+        <!-- ==================================================
+             PARTICLES / STARS
+        ================================================== -->
+
+        <a-entity id="stars"></a-entity>
+
+
+    </a-scene>
+
+
+
+    <!-- ==================================================
+         JAVASCRIPT
+    ================================================== -->
+
+    <script>
+
+        /* ==========================================
+           PROJECT DATA
+        ========================================== */
+
+        const projects = {
+
+            ai: {
+
+                category: "GENERATIVE AI",
+
+                title: "AI Research Assistant",
+
+                description:
+                    "An AI-powered research assistant designed to summarize information, answer questions and help users explore complex topics.",
+
+                tech:
+                    ["Python", "LLMs", "RAG", "FastAPI"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            },
+
+
+            agent: {
+
+                category: "AI AGENTS",
+
+                title: "Agentic AI System",
+
+                description:
+                    "An experimental autonomous AI system capable of breaking down tasks, selecting tools and executing multi-step workflows.",
+
+                tech:
+                    ["Python", "Agents", "LLMs", "APIs"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            },
+
+
+            web: {
+
+                category: "WEB DEVELOPMENT",
+
+                title: "Interactive Web Apps",
+
+                description:
+                    "Modern interactive web applications combining clean interfaces, animations and responsive design.",
+
+                tech:
+                    ["HTML", "CSS", "JavaScript", "A-Frame"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            },
+
+
+            ml: {
+
+                category: "MACHINE LEARNING",
+
+                title: "Machine Learning Lab",
+
+                description:
+                    "A collection of machine learning experiments covering data preprocessing, model training and evaluation.",
+
+                tech:
+                    ["Python", "NumPy", "Pandas", "Scikit-learn"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            },
+
+
+            fullstack: {
+
+                category: "FULL STACK",
+
+                title: "Full Stack Platform",
+
+                description:
+                    "A full-stack application demonstrating frontend interfaces, APIs, databases and authentication.",
+
+                tech:
+                    ["JavaScript", "Node.js", "Express", "MongoDB"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            },
+
+
+            lab: {
+
+                category: "EXPERIMENTS",
+
+                title: "Experimental Lab",
+
+                description:
+                    "A digital laboratory for experimenting with new ideas in AI, 3D interfaces and emerging technologies.",
+
+                tech:
+                    ["A-Frame", "WebXR", "JavaScript", "AI"],
+
+                github:
+                    "https://github.com/",
+
+                demo:
+                    "#"
+
+            }
+
+        };
+
+
+        /* ==========================================
+           SHOW PROJECT
+        ========================================== */
+
+        function showProject(id) {
+
+            const project = projects[id];
+
+            if (!project) return;
+
+
+            document.getElementById(
+                "panelCategory"
+            ).textContent = project.category;
+
+
+            document.getElementById(
+                "panelTitle"
+            ).textContent = project.title;
+
+
+            document.getElementById(
+                "panelDescription"
+            ).textContent = project.description;
+
+
+            const techContainer =
+                document.getElementById(
+                    "panelTech"
+                );
+
+
+            techContainer.innerHTML = "";
+
+
+            project.tech.forEach(
+                technology => {
+
+                    const span =
+                        document.createElement("span");
+
+                    span.textContent =
+                        technology;
+
+                    techContainer.appendChild(span);
+
+                }
+            );
+
+
+            document.getElementById(
+                "githubLink"
+            ).href = project.github;
+
+
+            document.getElementById(
+                "demoLink"
+            ).href = project.demo;
+
+
+            document.getElementById(
+                "projectPanel"
+            ).classList.add("active");
+
+        }
+
+
+        /* ==========================================
+           CLOSE PANEL
+        ========================================== */
+
+        document.getElementById(
+            "closePanel"
+        ).addEventListener(
+            "click",
+            () => {
+
+                document.getElementById(
+                    "projectPanel"
+                ).classList.remove("active");
+
+            }
+        );
+
+
+        /* ==========================================
+           GENERATE STAR FIELD
+        ========================================== */
+
+        const starContainer =
+            document.getElementById("stars");
+
+
+        for (
+            let i = 0;
+            i < 250;
+            i++
+        ) {
+
+            const star =
+                document.createElement(
+                    "a-sphere"
+                );
+
+
+            const x =
+                (Math.random() - 0.5) * 70;
+
+            const y =
+                Math.random() * 35;
+
+            const z =
+                (Math.random() - 0.5) * 70;
+
+
+            const size =
+                Math.random() * 0.04 + 0.01;
+
+
+            star.setAttribute(
+                "position",
+                `${x} ${y} ${z}`
+            );
+
+
+            star.setAttribute(
+                "radius",
+                size
+            );
+
+
+            star.setAttribute(
+                "color",
+                "#ffffff"
+            );
+
+
+            starContainer.appendChild(star);
+
+        }
+
+
+        /* ==========================================
+           PROJECT COUNT
+        ========================================== */
+
+        document.getElementById(
+            "projectCount"
+        ).textContent =
+            Object.keys(projects).length
+                .toString()
+                .padStart(2, "0");
+
+
+    </script>
+
+</body>
+</html>
